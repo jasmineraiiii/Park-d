@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0B1220" />
+  <title>Park'd · smart parking for Chandigarh</title>
+  <link rel="icon" href="/img/favicon.png" />
+  <link rel="apple-touch-icon" href="/img/icon-192.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header id="top"></header>
+  <main class="wrap">
+    <section class="festival hero" id="hero">
+      <div style="position:relative;max-width:620px">
+        <h1 style="font-size:30px">Find parking in Chandigarh, before you leave home.</h1>
+        <p class="sub">Live free spaces in MC parking lots, extra parking on busy days, and neighbourhood spaces you can book by the hour.</p>
+        <div class="row" style="margin-top:14px"><a class="btn yellow big" href="/driver">Find parking</a><a class="btn on-dark big" href="/neighbourhood">Neighbourhood parking</a>
+        </div>
+        <div class="map-legend" style="margin-top:16px"><span><i style="background:var(--green)"></i>MC lots</span><span><i style="background:var(--yellow)"></i>Festival zones</span><span><i style="background:var(--blue)"></i>Neighbourhood spaces</span><span><i style="background:var(--red)"></i>Full</span></div>
+      </div>
+      <div id="heroArt"></div>
+    </section>
+
+    <div class="section-title"><h2>Open an app</h2></div>
+    <div class="home-cards anim-in">
+      <a class="card" href="/driver">
+        <div class="icon c-green" data-icon="car"></div>
+        <h2>Driver</h2>
+        <p class="muted small">Live free spaces, map, AI assistant, reserve, check in, find your car. Festival alerts and alternatives when a lot is full.</p>
+        <span class="tag green" style="justify-self:start">No password</span>
+      </a>
+      <a class="card" href="/host">
+        <div class="icon c-peach" data-icon="key"></div>
+        <h2>Host a space</h2>
+        <p class="muted small">List your driveway or garage by the hour. The Municipal Corporation reviews every listing before it goes live.</p>
+        <span class="tag" style="justify-self:start">Phone sign-in</span>
+      </a>
+      <a class="card" href="/worker/login">
+        <div class="icon c-yellow" data-icon="parking"></div>
+        <h2>Worker app</h2>
+        <p class="muted small">For parking attendants, in MC lots and temporary zones. Assign slots, collect the fee, free slots.</p>
+        <span class="badge worker" style="justify-self:start">Worker login</span>
+      </a>
+      <a class="card" href="/mc/login">
+        <div class="icon c-lilac" data-icon="building"></div>
+        <h2>MC dashboard</h2>
+        <p class="muted small">City-wide occupancy, revenue, Festival Mode, overflow alerts, and Neighbourhood Parking moderation.</p>
+        <span class="badge mcb" style="justify-self:start">MC login</span>
+      </a>
+    </div>
+
+    <div class="card">
+      <h2>Server status</h2>
+      <p id="status" class="muted">Checking…</p>
+      <p class="small muted" style="margin-top:6px">Hackathon demo. Lots, zones, hosts and listings are fictional demo data. Payments are simulated; no money moves.</p>
+    </div>
+  </main>
+  <footer class="foot">Park'd · smart parking for Chandigarh · demo build</footer>
+  <script type="module" src="/js/home.js"></script>
+</body>
+</html>

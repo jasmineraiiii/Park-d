@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0B1220" />
+  <title>MC dashboard · Park'd</title>
+  <link rel="icon" href="/img/favicon.png" />
+  <link rel="apple-touch-icon" href="/img/icon-192.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header id="top"></header>
+  <main class="wrap">
+    <nav class="chips" aria-label="Dashboard sections">
+      <a class="chip" href="#overview">Overview</a><a class="chip" href="#festival">Festival Mode</a><a class="chip" href="#neighbourhood">Neighbourhood</a><a class="chip" href="#lots-sec">Lots & fees</a><a class="chip" href="#audit-sec">Audit log</a>
+    </nav>
+    <section class="kpis" id="overview"><div class="skel" style="height:104px"></div><div class="skel" style="height:104px"></div><div class="skel" style="height:104px"></div><div class="skel" style="height:104px"></div><div class="skel" style="height:104px"></div><div class="skel" style="height:104px"></div></section>
+
+    <!-- ===== Festival Mode ===== -->
+    <section class="card" id="festival" style="border-color:var(--yellow-line)">
+      <h2><span data-icon="sparkles" style="color:var(--yellow)"></span> Festival Mode <span class="right" id="festState"></span></h2>
+      <div class="grid cols-2">
+        <div class="grid" style="align-content:start">
+          <div class="row">
+            <input class="input" id="festLabel" placeholder="Label shown to drivers, e.g. Diwali at Sector 17" style="flex:1;min-width:200px" maxlength="80" />
+            <button class="btn mc" id="festOn" type="button">Turn on</button>
+            <button class="btn" id="festOff" type="button">Turn off</button>
+          </div>
+          <p class="small muted">The city-wide switch only changes the banner. Drivers see extra parking only for zones you activate below (or zones with a pre-approved automatic policy).</p>
+        </div>
+        <div class="grid" style="align-content:start">
+          <div class="notice yellow small"><b>Demo tool.</b> Fill a busy lot with simulated cars to show overflow detection on stage.</div>
+          <div class="row">
+            <select class="input" id="fillLot" style="flex:1"></select>
+            <button class="btn yellow" id="fillBtn" type="button">Demo: fill to 95%</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin:18px 0 8px">Overflow recommendations</h3>
+      <div class="table-wrap"><table id="overflow"></table></div>
+
+      <h3 style="margin:18px 0 8px">Temporary zones</h3>
+      <div class="table-wrap"><table id="zones"></table></div>
+
+      <h3 style="margin:18px 0 8px">Overflow thresholds</h3>
+      <p class="small muted" style="margin-bottom:8px">A lot raises one alert when it crosses the threshold, and re-arms only after dropping below threshold minus buffer.</p>
+      <div class="table-wrap scroll"><table id="thresholds"></table></div>
+    </section>
+
+    <!-- ===== Neighbourhood Parking ===== -->
+    <section class="card" id="neighbourhood" style="border-color:var(--blue-line)">
+      <h2><span data-icon="home" style="color:var(--blue-3)"></span> Neighbourhood Parking <span class="right">moderation</span></h2>
+      <div class="kpis" id="nbKpis"><div class="skel" style="height:96px"></div><div class="skel" style="height:96px"></div><div class="skel" style="height:96px"></div><div class="skel" style="height:96px"></div></div>
+      <h3 style="margin:18px 0 8px">Waiting for review</h3>
+      <div class="cards" id="pending"></div>
+      <h3 style="margin:18px 0 8px">Reports</h3>
+      <div class="table-wrap"><table id="reports"></table></div>
+      <h3 style="margin:18px 0 8px">Listings</h3>
+      <div class="table-wrap scroll"><table id="nbListings"></table></div>
+    </section>
+
+    <section class="card">
+      <h2>AI insights <span class="right" id="aiSource"></span></h2>
+      <ul class="list" id="insights"><li class="muted">Press "Generate" to ask GroqCloud for three observations from live data.</li></ul>
+      <div class="row" style="margin-top:8px"><button class="btn mc" id="genInsights" type="button">Generate insights</button></div>
+    </section>
+
+    <div class="grid cols-2">
+      <section class="card">
+        <h2>Entries per hour <span class="right">last 24 h, Chandigarh time</span></h2>
+        <div class="vbars" id="hourly"></div>
+      </section>
+      <section class="card">
+        <h2>Occupancy by sector</h2>
+        <div class="hbars" id="sectors"></div>
+      </section>
+    </div>
+
+    <div class="grid cols-3">
+      <section class="card">
+        <h2>Payments · 24 h</h2>
+        <div class="bar" style="height:12px;display:flex"><div id="upiBar" style="background:var(--mc)"></div><div id="cashBar" style="background:var(--green)"></div></div>
+        <div id="payments" class="small" style="margin-top:10px"></div>
+      </section>
+      <section class="card">
+        <h2>Alerts <span class="right">≥ 85% full</span></h2>
+        <ul class="list" id="alerts"></ul>
+      </section>
+      <section class="card">
+        <h2>Recent entries & exits</h2>
+        <ul class="list scroll" id="recent"></ul>
+      </section>
+    </div>
+
+    <section class="card" id="lots-sec">
+      <h2>Parking lots <span class="right">edit a fee and press Save</span></h2>
+      <div class="table-wrap"><table id="lots"></table></div>
+    </section>
+
+    <div class="grid cols-2">
+      <section class="card">
+        <h2>Workers</h2>
+        <div class="table-wrap"><table id="workers"></table></div>
+      </section>
+      <section class="card">
+        <h2>What's happening <span class="right">API calls + live events</span></h2>
+        <div class="feed" id="feed"></div>
+      </section>
+    </div>
+
+    <section class="card" id="audit-sec">
+      <h2>Audit log
+        <select class="input right" id="auditType" style="height:32px;margin-left:auto">
+          <option value="all">All actions</option><option value="slot">Slots</option><option value="reservation">Reservations</option>
+          <option value="payment">Payments</option><option value="lot">Fee changes</option><option value="zone">Zones</option><option value="overflow">Overflow</option><option value="listing">Listings</option><option value="system">System</option>
+        </select>
+      </h2>
+      <div class="table-wrap scroll"><table id="audit"></table></div>
+    </section>
+  </main>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/mc.js"></script>
+</body>
+</html>

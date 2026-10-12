@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0B1220" />
+  <title>Book a space · Park'd</title>
+  <link rel="icon" href="/img/favicon.png" />
+  <link rel="apple-touch-icon" href="/img/icon-192.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header id="top"></header>
+  <main class="wrap">
+    <a class="small" id="back" href="/neighbourhood">← Back to spaces</a>
+    <div class="grid main-side">
+      <div class="grid" style="align-content:start" id="detail"><div class="skel" style="height:300px"></div><div class="skel" style="height:240px"></div></div>
+      <aside class="grid" style="align-content:start">
+        <section class="card" id="book" style="position:sticky;top:84px"><div class="skel line" style="width:60%"></div><div class="skel" style="height:120px;margin-top:12px"></div></section>
+      </aside>
+    </div>
+  </main>
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/listing.js"></script>
+</body>
+</html>

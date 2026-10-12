@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0B1220" />
+  <title>Festival parking · Park'd</title>
+  <link rel="icon" href="/img/favicon.png" />
+  <link rel="apple-touch-icon" href="/img/icon-192.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header id="top"></header>
+  <main class="wrap">
+    <a class="small" href="/driver">← Back to parking</a>
+    <div id="banner"><div class="skel" style="height:180px"></div></div>
+    <div class="map tall" id="map"></div>
+    <div class="section-title"><h2>Temporary parking zones</h2><span class="small muted" id="count"></span></div>
+    <div class="cards" id="zones"><div class="skel skel-card"></div><div class="skel skel-card"></div></div>
+    <p class="small muted">Temporary zones are opened by the Municipal Corporation for festivals and big events. Locations shown here are demo sites and are not verified. Follow the attendant's directions at the gate.</p>
+  </main>
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/festival.js"></script>
+</body>
+</html>

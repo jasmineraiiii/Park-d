@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0B1220" />
+  <title>Host dashboard · Park'd</title>
+  <link rel="icon" href="/img/favicon.png" />
+  <link rel="apple-touch-icon" href="/img/icon-192.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header id="top"></header>
+  <main class="wrap">
+    <section class="feature nb">
+      <div>
+        <h1>Your spaces</h1>
+        <p style="margin-top:6px">Earn from your empty driveway or garage. Every listing is reviewed by the Municipal Corporation before drivers can see it.</p>
+        <div class="row" style="margin-top:12px"><a class="btn primary" href="/host-new">+ List a space</a></div>
+      </div>
+      <div id="art"></div>
+    </section>
+
+    <section class="card" id="signin">
+      <h2>Host sign-in</h2>
+      <p class="small muted" style="margin-bottom:8px">Sign in with your phone number. Demo hosts: <b>9800000301</b>, <b>9800000302</b>, <b>9800000303</b>. (Demo: no OTP is sent.)</p>
+      <form class="row" id="phoneForm">
+        <input class="input" id="phone" inputmode="numeric" maxlength="10" placeholder="10-digit phone" style="flex:1;min-width:160px" aria-label="Phone number" />
+        <button class="btn primary" type="submit">Sign in</button>
+      </form>
+      <p class="small muted" id="whoami" style="margin-top:8px"></p>
+    </section>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="section-title"><h2>Listings</h2></div>
+    <div class="cards" id="listings"><div class="skel skel-card"></div><div class="skel skel-card"></div></div>
+
+    <section class="card">
+      <h2>Bookings <span class="right">payouts are not real in this demo</span></h2>
+      <div class="table-wrap"><table id="bookings"></table></div>
+    </section>
+  </main>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/host.js"></script>
+</body>
+</html>

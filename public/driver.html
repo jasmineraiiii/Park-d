@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0B1220" />
+  <title>Find parking · Park'd</title>
+  <link rel="icon" href="/img/favicon.png" />
+  <link rel="apple-touch-icon" href="/img/icon-192.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header id="top"></header>
+  <main class="wrap">
+    <div id="festivalSlot"></div>
+    <section class="card" id="mine"></section>
+
+    <div class="grid main-side">
+      <div class="grid" style="align-content:start">
+        <section class="card">
+          <h2>Where are you going?</h2>
+          <form class="row" id="searchForm">
+            <input class="input" id="q" style="flex:1;min-width:180px" placeholder="Sector 22, Elante, PGI…" aria-label="Search a sector or landmark" />
+            <button class="btn primary" type="submit">Search</button>
+            <button class="btn" id="locBtn" type="button"><span data-icon="locate"></span>Near me</button>
+            <button class="btn ghost" id="clearSearch" type="button">Show all</button>
+          </form>
+          <p id="searchInfo" class="small muted" style="margin-top:8px"></p>
+          <div class="map tall" id="map" style="margin-top:12px"></div>
+          <div class="map-legend"><span><i style="background:var(--green)"></i>Free (MC lot)</span><span><i style="background:var(--yellow)"></i>Festival zone</span><span><i style="background:var(--red)"></i>Full or closed</span><span>Yellow ring = limited</span></div>
+        </section>
+
+        <section class="card">
+          <h2><span data-icon="bot"></span> Ask Park'd <span class="right" id="aiSource">AI assistant</span></h2>
+          <form class="row" id="askForm">
+            <input class="input" id="ask" style="flex:1;min-width:180px" placeholder="Is there parking near Elante right now?" />
+            <button class="btn primary" type="submit">Ask</button>
+          </form>
+          <div id="answer" class="muted" style="margin-top:10px"></div>
+        </section>
+
+        <div class="section-title"><h2>Parking lots</h2><span class="small muted">live free spaces</span></div>
+        <div class="cards" id="lots"><div class="skel skel-card"></div><div class="skel skel-card"></div><div class="skel skel-card"></div></div>
+      </div>
+
+      <div class="grid" style="align-content:start">
+        <section class="card" id="lotCard">
+          <h2>Pick a lot</h2>
+          <p class="muted">Tap a pin or a card to see its slots, reserve, or check in.</p>
+        </section>
+        <section class="feature nb" id="nbCard">
+          <div>
+            <h2>Parking in the neighbourhood</h2>
+            <p class="small" style="margin:6px 0 10px">Book a resident's driveway or garage by the hour.</p>
+            <p class="count" id="nbCount">&nbsp;</p>
+            <div class="row" style="margin-top:10px"><a class="btn primary" href="/neighbourhood">Explore private parking</a><a class="btn" href="/host">List your parking space</a></div>
+          </div>
+          <div id="nbArt"></div>
+        </section>
+        <section class="card" id="myBookings">
+          <h2>My neighbourhood bookings</h2>
+          <p class="muted small">None yet.</p>
+        </section>
+        <section class="card">
+          <h2>Your account</h2>
+          <p class="small muted" style="margin-bottom:8px">Test drivers are created automatically. Demo hosts sign in with their phone number.</p>
+          <form class="row" id="phoneForm">
+            <input class="input" id="phone" inputmode="numeric" maxlength="10" placeholder="9800000301" style="flex:1;min-width:140px" aria-label="Phone number" />
+            <button class="btn" type="submit">Sign in with phone</button>
+          </form>
+          <div class="row" style="margin-top:8px">
+            <button class="btn small" id="newDriver" type="button">New test driver</button>
+            <label class="check small"><input type="checkbox" id="prefFestival" /> Festival parking alerts</label>
+          </div>
+        </section>
+        <section class="card">
+          <h2>What's happening <span class="right">API calls + live events</span></h2>
+          <div class="feed" id="feed"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/driver.js"></script>
+</body>
+</html>

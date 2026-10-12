@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0B1220" />
+  <title>Worker app · Park'd</title>
+  <link rel="icon" href="/img/favicon.png" />
+  <link rel="apple-touch-icon" href="/img/icon-192.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header id="top"></header>
+
+  <main class="wrap">
+    <div id="zoneNotice"></div>
+    <section class="card">
+      <div class="row" style="justify-content:space-between">
+        <label class="field">Your lot
+          <select class="input" id="lotSelect"></select>
+        </label>
+        <div id="lotStats" class="row"></div>
+      </div>
+      <div class="bar" style="margin:12px 0"><div id="occBar"></div></div>
+      <div class="grid cols-2">
+        <button class="btn primary big" id="newCash" type="button">+ New car · Cash</button>
+        <button class="btn big" id="newUpi" type="button">+ New car · UPI</button>
+      </div>
+      <p class="muted small" style="margin:8px 0 0">One tap gives the next free walk-in slot and records the fee. Tap a slot below for anything else.</p>
+    </section>
+
+    <div class="grid main-side">
+      <section class="card">
+        <h2>Slots <span class="right" id="slotSummary"></span></h2>
+        <div class="legend">
+          <span>🟩 Available</span><span>⬜ Occupied (🚗)</span><span>🔒 Reserved (dashed)</span><span>R = reservation pool (10%)</span>
+        </div>
+        <div class="slots" id="slots"></div>
+      </section>
+      <div class="grid" style="align-content:start">
+        <section class="card">
+          <h2>Last 24 h <span class="right" id="collected"></span></h2>
+          <ul class="list scroll" id="payments"></ul>
+        </section>
+        <section class="card">
+          <h2>Activity log</h2>
+          <ul class="list scroll" id="log"></ul>
+        </section>
+        <section class="card">
+          <h2>What's happening <span class="right">API calls + live events</span></h2>
+          <div class="feed" id="feed"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <aside class="panel hidden" id="panel" aria-label="Slot actions"></aside>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/worker.js"></script>
+</body>
+</html>
