@@ -77,7 +77,7 @@ export default function HeroSection({ onTabSelect, onOpenAuth }) {
           <button
             type="button"
             onClick={() => (onOpenAuth ? onOpenAuth() : onTabSelect('tab-solution'))}
-            className="px-8 py-3.5 rounded-full bg-white/90 hover:bg-white text-slate-800 font-bold text-sm border border-slate-200/90 shadow-sm backdrop-blur-md transition-all duration-200 transform hover:-translate-y-0.5 cursor-pointer flex items-center gap-2 hover:border-slate-300"
+            className="px-8 py-3.5 rounded-full bg-slate-100/90 hover:bg-slate-50 text-slate-800 font-bold text-sm border border-slate-200/90 shadow-sm backdrop-blur-md transition-all duration-200 transform hover:-translate-y-0.5 cursor-pointer flex items-center gap-2 hover:border-slate-300"
           >
             <span>Get Started</span>
             <ChevronRight className="w-4 h-4 text-slate-600" />
@@ -86,7 +86,7 @@ export default function HeroSection({ onTabSelect, onOpenAuth }) {
           <button
             type="button"
             onClick={() => onTabSelect('tab-problem')}
-            className="px-7 py-3.5 rounded-full bg-white/90 hover:bg-white text-slate-800 font-semibold text-sm border border-sky-200 shadow-sm backdrop-blur-md transition-all duration-200 cursor-pointer hover:border-sky-300"
+            className="px-7 py-3.5 rounded-full bg-slate-100/90 hover:bg-slate-50 text-slate-800 font-semibold text-sm border border-slate-200/90 shadow-sm backdrop-blur-md transition-all duration-200 transform hover:-translate-y-0.5 cursor-pointer hover:border-slate-300"
           >
             Explore Platform
           </button>
