@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0B1220" />
+  <title>Neighbourhood parking · Park'd</title>
+  <link rel="icon" href="/img/favicon.png" />
+  <link rel="apple-touch-icon" href="/img/icon-192.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header id="top"></header>
+  <main class="wrap">
+    <section class="feature nb">
+      <div>
+        <h1>Parking in the neighbourhood</h1>
+        <p style="margin-top:6px">Residents rent out their driveways and garages by the hour. The exact address is shared 2 hours before your booking starts.</p>
+      </div>
+      <div id="art"></div>
+    </section>
+
+    <section class="card">
+      <form id="filters" class="grid" style="gap:12px">
+        <div class="row">
+          <input class="input" id="q" name="q" style="flex:1;min-width:200px" placeholder="Where to? Sector 8, Elante, PGI…" aria-label="Sector or landmark" />
+          <button class="btn" id="near" type="button"><span data-icon="locate"></span>Near me</button>
+          <button class="btn primary" type="submit">Search</button>
+        </div>
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
+          <label class="field">Date<input class="input" type="date" id="date" /></label>
+          <label class="field">From<select class="input" id="start"><option value="">Any time</option></select></label>
+          <label class="field">For<select class="input" id="hours"><option value="">Any</option></select></label>
+          <label class="field">Max ₹/hour<select class="input" id="maxPrice"><option value="">Any</option><option>30</option><option>40</option><option>50</option><option>80</option></select></label>
+          <label class="field">Max walk<select class="input" id="maxWalkMin"><option value="">Any</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option></select></label>
+          <label class="field">Vehicle<select class="input" id="vehicle"><option value="">Any</option><option value="hatchback">Hatchback</option><option value="sedan">Sedan</option><option value="suv">SUV</option><option value="two-wheeler">Two-wheeler</option></select></label>
+        </div>
+      </form>
+    </section>
+
+    <div class="grid main-side">
+      <div class="grid" style="align-content:start">
+        <div class="section-title"><h2 id="resultsTitle">Spaces</h2></div>
+        <div class="cards" id="results"><div class="skel skel-card"></div><div class="skel skel-card"></div></div>
+      </div>
+      <div class="grid" style="align-content:start">
+        <div class="map tall" id="map"></div>
+        <p class="small muted">Pins show an approximate area (about 150 m), not the house. All hosts and spaces in this demo are fictional.</p>
+        <a class="btn" href="/host"><span data-icon="key"></span>Have a free driveway? List it</a>
+      </div>
+    </div>
+  </main>
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/neighbourhood.js"></script>
+</body>
+</html>

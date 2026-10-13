@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0B1220" />
+  <title>List a space · Park'd</title>
+  <link rel="icon" href="/img/favicon.png" />
+  <link rel="apple-touch-icon" href="/img/icon-192.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header id="top"></header>
+  <main class="wrap narrow">
+    <a class="small" href="/host">← Your spaces</a>
+    <section class="card">
+      <div class="steps" id="steps" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      <h1 id="title" style="margin-top:14px">List a space</h1>
+      <p class="muted small" id="stepLabel"></p>
+    </section>
+
+    <form id="wizard" class="grid" novalidate>
+      <section class="card grid" data-step="1">
+        <h2>The space</h2>
+        <label class="field">Title<input class="input" id="f-title" maxlength="90" placeholder="Covered garage near Sector 22 market" /></label>
+        <div class="field"><span>Type</span><div class="chips" id="f-type">
+          <button type="button" class="chip" data-v="driveway" aria-pressed="true">Driveway</button>
+          <button type="button" class="chip" data-v="covered-garage" aria-pressed="false">Covered garage</button>
+          <button type="button" class="chip" data-v="open-plot" aria-pressed="false">Open plot</button>
+          <button type="button" class="chip" data-v="stilt" aria-pressed="false">Stilt parking</button>
+        </div></div>
+        <div class="grid cols-2">
+          <label class="field">Number of spaces<input class="input" id="f-spaces" type="number" min="1" max="10" value="1" /></label>
+          <label class="field">Covered?<select class="input" id="f-covered"><option value="false">No, open to sky</option><option value="true">Yes</option></select></label>
+        </div>
+        <div class="field"><span>Fits</span><div class="chips" id="f-fit">
+          <button type="button" class="chip" data-v="hatchback" aria-pressed="true">Hatchback</button>
+          <button type="button" class="chip" data-v="sedan" aria-pressed="true">Sedan</button>
+          <button type="button" class="chip" data-v="suv" aria-pressed="false">SUV</button>
+          <button type="button" class="chip" data-v="two-wheeler" aria-pressed="false">Two-wheeler</button>
+        </div></div>
+        <div class="grid cols-2">
+          <label class="field">Size (optional)<input class="input" id="f-dimensions" placeholder="5 m x 2.6 m" /></label>
+          <label class="field">Surface (optional)<input class="input" id="f-surface" placeholder="Paved" /></label>
+          <label class="field">Entrance width (optional)<input class="input" id="f-entranceWidth" placeholder="2.8 m" /></label>
+          <label class="field">Height limit (optional)<input class="input" id="f-clearance" placeholder="2.2 m" /></label>
+        </div>
+      </section>
+
+      <section class="card grid" data-step="2">
+        <h2>Where is it?</h2>
+        <div class="grid cols-2">
+          <label class="field">Sector<input class="input" id="f-sector" placeholder="22" /></label>
+          <label class="field">Nearby landmark (shown to drivers)<input class="input" id="f-landmark" placeholder="Sector 22 market" /></label>
+        </div>
+        <div class="field"><span>Tap the map to place a pin on your gate</span><div class="map" id="pickMap"></div><span class="small muted" id="pinInfo">No pin yet.</span></div>
+        <label class="field">Exact address<input class="input" id="f-exactAddress" placeholder="House no., street, sector" /></label>
+        <label class="field">How to get in (optional)<textarea class="input" id="f-accessInstructions" placeholder="Ring the bell, gate code, which side to park"></textarea></label>
+        <div class="notice yellow">🔒 Drivers only see an approximate area (about 150 m). Your exact address and access instructions are shared with a driver 2 hours before their booking starts.</div>
+      </section>
+
+      <section class="card grid" data-step="3">
+        <h2>When and how much</h2>
+        <label class="field">Price per hour (₹)<input class="input" id="f-rate" type="number" min="1" max="1000" value="40" /></label>
+        <div class="field"><span>Available hours</span><div class="grid" id="windows"></div>
+          <button class="btn small" id="addWin" type="button" style="justify-self:start">+ Add another time window</button></div>
+        <label class="field">Blocked dates (optional, comma separated)<input class="input" id="f-blocked" placeholder="2026-10-20, 2026-10-21" /></label>
+        <label class="field">House rules (optional)<textarea class="input" id="f-rules" placeholder="No overnight parking. Don't block the neighbour's gate."></textarea></label>
+      </section>
+
+      <section class="card grid" data-step="4">
+        <h2>Check and submit</h2>
+        <div id="summary"></div>
+        <label class="check" id="declBox"><input type="checkbox" id="f-declaration" /> <span>I own this space or have the owner's permission, and renting it follows my society/RWA rules and local regulations.</span></label>
+        <div class="notice grey small">The Municipal Corporation reviews every new space. You'll get a notification when it's live.</div>
+      </section>
+
+      <div class="row">
+        <button class="btn" id="prev" type="button">Back</button>
+        <button class="btn primary big" id="next" type="button" style="margin-left:auto">Next</button>
+      </div>
+    </form>
+  </main>
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/host-new.js"></script>
+</body>
+</html>

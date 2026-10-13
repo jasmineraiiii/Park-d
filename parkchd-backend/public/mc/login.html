@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0B1220" />
+  <title>MC login · Park'd</title>
+  <link rel="icon" href="/img/favicon.png" />
+  <link rel="apple-touch-icon" href="/img/icon-192.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <main class="login">
+    <form class="card" id="login" novalidate>
+      <img class="logo" src="/img/logo.png" alt="Park'd" />
+      <span class="badge mcb" style="justify-self:start">Municipal Corporation</span>
+      <h1>MC login</h1>
+      <label class="field">ID<input class="input" id="username" autocomplete="username" placeholder="mc-admin" /></label>
+      <label class="field">PIN<input class="input" id="pin" inputmode="numeric" maxlength="4" autocomplete="current-password" type="password" placeholder="4 digits" /></label>
+      <p class="error" id="error" role="alert"></p>
+      <button class="btn big mc" type="submit">Sign in</button>
+      <div class="hint">Demo ID: <b>mc-admin</b> / 2026.<br>Worker accounts can't sign in here.</div>
+      <a href="/" class="small">← Back to Park'd</a>
+    </form>
+  </main>
+  <script type="module" src="/js/mc-login.js"></script>
+</body>
+</html>
