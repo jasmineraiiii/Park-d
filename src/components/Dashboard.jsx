@@ -1599,24 +1599,47 @@ function DevAnalytics({ showToast, overview, lots }) {
 
           <div className="py-6">
             {hourly.loading && !hourly.data ? <Loading /> : (
-              <div className="h-52 w-full flex items-end gap-1 sm:gap-1.5 px-2">
-                {hours.map((bar) => {
-                  const peak = bar.entries >= max * 0.75;
-                  return (
-                    <div key={bar.hour} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
-                      <div className="text-[10px] font-mono text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">{bar.entries}</div>
-                      <div
-                        className={`w-full rounded-t-lg transition-all duration-300 ${
-                          peak
-                            ? 'bg-gradient-to-t from-sky-600 to-sky-400 group-hover:from-sky-500 group-hover:to-sky-300'
-                            : 'bg-gradient-to-t from-slate-200 to-sky-200 group-hover:from-sky-300 group-hover:to-sky-200'
-                        } ${bar.hour === nowH ? 'ring-2 ring-purple-400' : ''}`}
-                        style={{ height: `${(bar.entries / max) * 100}%` }}
-                      />
-                      <span className="text-[10px] font-mono text-slate-500">{bar.hour % 3 === 0 ? String(bar.hour).padStart(2, '0') : ''}</span>
+              <div className="w-full space-y-2">
+                {/* Fixed-height Bar Area (all bars share the exact same baseline) */}
+                <div className="h-48 w-full flex items-end gap-1 sm:gap-2 px-1 border-b border-slate-100 pb-1">
+                  {hours.map((bar) => {
+                    const peak = bar.entries >= max * 0.75;
+                    const pct = max > 0 ? (bar.entries / max) * 100 : 0;
+                    const isNow = bar.hour === nowH;
+                    return (
+                      <div key={bar.hour} className="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        {/* Hover Tooltip count */}
+                        <div className="absolute -top-7 text-[10px] font-mono font-bold text-slate-700 bg-white px-1.5 py-0.5 rounded shadow-sm border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                          {bar.entries} entries
+                        </div>
+                        {/* The Bar */}
+                        <div
+                          className={`w-full rounded-t-md transition-all duration-300 ${
+                            peak
+                              ? 'bg-gradient-to-t from-sky-600 to-sky-400 group-hover:from-sky-500 group-hover:to-sky-300'
+                              : bar.entries > 0
+                              ? 'bg-gradient-to-t from-sky-200 to-sky-100 group-hover:from-sky-300 group-hover:to-sky-200'
+                              : 'bg-slate-100 group-hover:bg-slate-200'
+                          } ${isNow ? 'ring-2 ring-purple-500 ring-offset-1' : ''}`}
+                          style={{
+                            height: bar.entries > 0 ? `${Math.max(4, pct)}%` : '3px',
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Hour Labels aligned below the baseline */}
+                <div className="w-full flex items-center gap-1 sm:gap-2 px-1">
+                  {hours.map((bar) => (
+                    <div key={`lbl-${bar.hour}`} className="flex-1 text-center">
+                      <span className={`text-[10px] font-mono block ${bar.hour === nowH ? 'font-bold text-purple-600' : 'text-slate-400'}`}>
+                        {bar.hour % 3 === 0 ? String(bar.hour).padStart(2, '0') : ''}
+                      </span>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
             )}
           </div>
