@@ -131,11 +131,32 @@ export default function FindSlotSection({ onTabSelect, onOpenAuth }) {
   const [liveLots, setLiveLots] = useState(null); // null = server not reached → sample data
   useEffect(() => { api('GET', '/lots').then((r) => setLiveLots(r.lots.map(fromApi))).catch(() => setLiveLots(null)); }, []);
   useLive({ 'lot:update': (s) => setLiveLots((ls) => ls && ls.map((l) => (l.id === s.lotId ? { ...l, freeSlots: s.available, reservable: s.reservableFree, isOpen: s.open } : l))) });
-  const sourceLots = liveLots ?? PARKING_LOTS;
+  
+  // Exactly 6 curated spaces on the landing page ensuring every filter has matching results:
+  // - All Parking (all 6)
+  // - Near Me / Sec 17 & 22 (Sector 17 Multi-Level, Shastri Market, Neelam Cinema, Sector 22-D)
+  // - Popular Sectors / 17, 22, 35, 8 (Sector 17 Multi-Level, Shastri Market, Sector 35-C, Sector 8)
+  // - Reserved Parking / reservable > 0 (Sector 17 Multi-Level, Sector 35-C, Shastri Market, Sector 22-D)
+  const baseLots = useMemo(() => {
+    if (liveLots && liveLots.length > 0) {
+      // Pick curated 6 from live backend if available, or first 6
+      const desiredIds = ['s17-ml', 's22-shastri', 's35-c', 's8-inner', 's17-neelam', 's22-kiran'];
+      const picked = desiredIds.map(id => liveLots.find(l => l.id === id)).filter(Boolean);
+      if (picked.length === 6) return picked;
+      return liveLots.slice(0, 6);
+    }
+    return PARKING_LOTS;
+  }, [liveLots]);
+
+  const allLots = liveLots ?? PARKING_LOTS;
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedLot, setSelectedLot] = useState(null);
   const [modalType, setModalType] = useState(null);
+  const [isViewAllOpen, setIsViewAllOpen] = useState(false);
+  const [viewAllSearch, setViewAllSearch] = useState('');
+  const [viewAllFilter, setViewAllFilter] = useState('all');
 
   // Fade refs
   const leftRef  = useFadeIn(0.05);
@@ -147,9 +168,9 @@ export default function FindSlotSection({ onTabSelect, onOpenAuth }) {
   const card3Ref = useFadeIn(0.50);
   const rightRef = useFadeIn(0.20);
 
-  // Filter lots based on search query and active filter
+  // Filter lots based on search query and active filter (capped to 6 on landing card view)
   const filteredLots = useMemo(() => {
-    return sourceLots.filter((lot) => {
+    return baseLots.filter((lot) => {
       const matchesSearch =
         searchQuery.trim() === '' ||
         lot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -162,8 +183,26 @@ export default function FindSlotSection({ onTabSelect, onOpenAuth }) {
       if (activeFilter === 'reserved') return lot.reservable > 0;
       if (activeFilter === 'near') return lot.sector === '17' || lot.sector === '22';
       return true;
+    }).slice(0, 6);
+  }, [searchQuery, activeFilter, baseLots]);
+
+  // Modal full lots filter
+  const modalFilteredLots = useMemo(() => {
+    return allLots.filter((lot) => {
+      const matchesSearch =
+        viewAllSearch.trim() === '' ||
+        lot.name.toLowerCase().includes(viewAllSearch.toLowerCase()) ||
+        lot.location.toLowerCase().includes(viewAllSearch.toLowerCase()) ||
+        lot.sector.toLowerCase().includes(viewAllSearch.toLowerCase());
+
+      if (!matchesSearch) return false;
+
+      if (viewAllFilter === 'popular') return lot.isPopular;
+      if (viewAllFilter === 'reserved') return lot.reservable > 0;
+      if (viewAllFilter === 'near') return lot.sector === '17' || lot.sector === '22';
+      return true;
     });
-  }, [searchQuery, activeFilter, sourceLots]);
+  }, [viewAllSearch, viewAllFilter, allLots]);
 
   const handleOpenLot = (lot, type = 'view') => {
     setSelectedLot(lot);
@@ -275,16 +314,11 @@ export default function FindSlotSection({ onTabSelect, onOpenAuth }) {
 
           {/* RIGHT SIDE */}
           <div ref={rightRef} className="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-7 border border-sky-100 shadow-xl shadow-sky-500/5" style={{opacity:0}}>
-            {/* Top Sub-Bar: Chandigarh Dropdown & DD Profile Badge */}
+            {/* Top Sub-Bar: Chandigarh Location Label */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800">
                 <MapPin className="w-3.5 h-3.5 text-sky-600" />
                 <span>Chandigarh</span>
-                <span className="text-slate-400 text-[10px]">▼</span>
-              </div>
-
-              <div className="w-8 h-8 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                DD
               </div>
             </div>
 
@@ -295,10 +329,6 @@ export default function FindSlotSection({ onTabSelect, onOpenAuth }) {
               </h3>
               <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 font-medium">
                 <span>Live parking availability across Chandigarh.</span>
-                <span className="inline-flex items-center gap-1 text-[11px] text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  {liveLots ? "Live from the Park'd server · demo lots" : 'Simulated live data'}
-                </span>
               </div>
             </div>
 
@@ -417,7 +447,11 @@ export default function FindSlotSection({ onTabSelect, onOpenAuth }) {
 
               <button
                 type="button"
-                onClick={() => setActiveFilter('all')}
+                onClick={() => {
+                  setViewAllSearch('');
+                  setViewAllFilter('all');
+                  setIsViewAllOpen(true);
+                }}
                 className="text-xs font-bold text-sky-600 hover:text-sky-700 flex items-center gap-0.5 cursor-pointer"
               >
                 <span>View all</span>
@@ -655,6 +689,179 @@ export default function FindSlotSection({ onTabSelect, onOpenAuth }) {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Full Window Modal for "View all" Parking Slots */}
+      {isViewAllOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-md animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-sky-100 overflow-hidden relative">
+            {/* Header */}
+            <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[11px] font-bold mb-1">
+                  <MapPin className="w-3 h-3 text-sky-600" />
+                  <span>Chandigarh Smart Parking Network</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                  All Municipal Parking Locations
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Showing {modalFilteredLots.length} parking locations across Chandigarh
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsViewAllOpen(false)}
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-xs"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Filter & Search Bar within Modal */}
+            <div className="p-4 sm:p-6 border-b border-slate-100 bg-white shrink-0 space-y-3">
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                <input
+                  type="text"
+                  value={viewAllSearch}
+                  onChange={(e) => setViewAllSearch(e.target.value)}
+                  placeholder="Search sector, landmark or parking lot..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white transition-all"
+                />
+                {viewAllSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setViewAllSearch('')}
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Filter Pills */}
+              <div className="flex flex-wrap items-center gap-2">
+                {[
+                  { id: 'all', label: 'All Lots', count: allLots.length },
+                  { id: 'near', label: 'Near Me (Sec 17 & 22)', count: allLots.filter(l => l.sector === '17' || l.sector === '22').length },
+                  { id: 'popular', label: 'Popular Sectors', count: allLots.filter(l => l.isPopular).length },
+                  { id: 'reserved', label: 'Book Ahead (Reservable)', count: allLots.filter(l => l.reservable > 0).length },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setViewAllFilter(f.id)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      viewAllFilter === f.id
+                        ? 'bg-sky-600 text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    <span>{f.label}</span>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${viewAllFilter === f.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'}`}>{f.count}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Scrollable Lot Grid */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/40">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {modalFilteredLots.map((lot) => {
+                  const fullness = Math.round(((lot.totalSlots - lot.freeSlots) / lot.totalSlots) * 100);
+                  const isPlenty = lot.freeSlots >= PLENTY_FREE_SLOTS;
+                  const isFull = lot.freeSlots === 0;
+
+                  return (
+                    <div
+                      key={`modal-${lot.id}`}
+                      className="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-sky-300 transition-all shadow-2xs hover:shadow-md flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h5 className="text-sm font-bold text-slate-900 leading-snug">{lot.name}</h5>
+                          <div className="text-right shrink-0">
+                            <span className="text-base font-extrabold text-slate-900">{lot.freeSlots}</span>
+                            <span className="text-xs text-slate-500">/{lot.totalSlots}</span>
+                            <div className="text-[9px] text-slate-400 font-semibold uppercase">free</div>
+                          </div>
+                        </div>
+
+                        <p className="text-[11px] text-slate-500 flex items-center gap-1 mb-2.5">
+                          <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span className="truncate">{lot.location}</span>
+                        </p>
+
+                        <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+                          <span
+                            className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${
+                              isFull
+                                ? 'bg-red-50 text-red-700 border-red-200'
+                                : isPlenty
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                : 'bg-amber-50 text-amber-800 border-amber-200'
+                            }`}
+                          >
+                            {lot.freeSlots} free · {isFull ? 'Full' : isPlenty ? 'Plenty' : 'Limited'}
+                          </span>
+                          <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                            {fullness}% full
+                          </span>
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700">
+                            {lot.fee}
+                          </span>
+                        </div>
+
+                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mb-3">
+                          <div
+                            className={`h-full rounded-full ${
+                              isFull ? 'bg-red-500' : isPlenty ? 'bg-emerald-500' : 'bg-amber-500'
+                            }`}
+                            style={{ width: `${fullness}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsViewAllOpen(false);
+                            handleOpenLot(lot, 'view');
+                          }}
+                          className="py-1.5 px-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-all shadow-xs cursor-pointer text-center"
+                        >
+                          View parking
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            window.open(lot.lat ? `https://www.google.com/maps/dir/?api=1&destination=${lot.lat},${lot.lng}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lot.name + ' Chandigarh')}`, '_blank');
+                          }}
+                          className="py-1.5 px-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold border border-slate-200 transition-all cursor-pointer flex items-center justify-center gap-1"
+                        >
+                          <Navigation className="w-3 h-3 text-sky-600" />
+                          <span>Directions</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {modalFilteredLots.length === 0 && (
+                <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 mt-4">
+                  <AlertCircle className="w-6 h-6 text-slate-400 mx-auto mb-2" />
+                  <p className="text-sm font-bold text-slate-700">No parking locations found</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Try clearing the search query or changing filter.</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
