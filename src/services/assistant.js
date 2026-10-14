@@ -102,7 +102,7 @@ export async function adminInsights() {
     busiestSectors: o.sectors.slice(0, 3), quietestSectors: o.sectors.slice(-3), alerts: o.alerts,
   };
   const fallback = () => [
-    o.alerts.length ? `${o.alerts[0].name} is ${o.alerts[0].occupancyPct}% full; consider directing drivers to nearby lots.` : "No lot is above 85% full right now.",
+    o.alerts.length ? `${o.alerts[0].name} is ${o.alerts[0].occupancyPct}% full; consider directing citizens to nearby lots.` : "No lot is above 85% full right now.",
     `${facts.upiSharePct}% of the last 24 h revenue (₹${facts.revenueInr}) came through UPI.`,
     `${o.sectors[0].sector} is the busiest area at ${o.sectors[0].occupancyPct}%; ${o.sectors.at(-1).sector} has the most spare room.`,
   ];

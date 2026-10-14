@@ -51,7 +51,7 @@ export default function HeroSection({ onTabSelect, onOpenAuth }) {
 
         {/* Subtitle */}
         <p className="animate-fade-in delay-300 text-lg sm:text-2xl text-slate-700 max-w-2xl font-normal leading-relaxed mb-10">
-          Park'd puts every Municipal Corporation parking lot in Chandigarh on one live map, so drivers know where to park before they leave home.
+          Park'd puts every Municipal Corporation parking lot in Chandigarh on one live map, so citizens know where to park before they leave home.
         </p>
 
         {/* 3 Metric Pills */}

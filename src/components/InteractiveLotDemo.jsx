@@ -15,7 +15,7 @@ export default function InteractiveLotDemo() {
   const [auditLogs, setAuditLogs] = useState([
     { id: 1, time: '12:54', action: 'Slot #12 Assigned', actor: 'Attendant Rajesh K.', detail: '₹14 UPI' },
     { id: 2, time: '12:52', action: 'Slot #04 Released', actor: 'Attendant Rajesh K.', detail: 'Car Exited' },
-    { id: 3, time: '12:50', action: 'Slot #09 Reserved', actor: 'Driver (UPI Verified)', detail: '15m Lock' }
+    { id: 3, time: '12:50', action: 'Slot #09 Reserved', actor: 'Citizen (UPI Verified)', detail: '15m Lock' }
   ]);
   const [searchQuery, setSearchQuery] = useState('Sector 17');
 
@@ -107,7 +107,7 @@ export default function InteractiveLotDemo() {
         id: Date.now(),
         time: now,
         action: `Reserved Slot #${selectedSlot}`,
-        actor: 'Driver App',
+        actor: 'Citizen App',
         detail: '₹14 UPI Ref #7821'
       },
       ...prev.slice(0, 4)
@@ -133,7 +133,7 @@ export default function InteractiveLotDemo() {
             </span>
           </div>
           <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
-            See How Drivers, Attendants & MC Sync in Real Time
+            See How Citizens, Attendants & MC Sync in Real Time
           </h3>
         </div>
 
@@ -149,7 +149,7 @@ export default function InteractiveLotDemo() {
             }`}
           >
             <Smartphone className="w-3.5 h-3.5" />
-            <span>Driver App</span>
+            <span>Citizen App</span>
           </button>
           <button
             type="button"
@@ -272,7 +272,7 @@ export default function InteractiveLotDemo() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono uppercase tracking-wider text-sky-700 font-bold">
-                  Driver Experience
+                  Citizen Experience
                 </span>
                 <span className="text-[11px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 font-semibold">
                   15-Min Lock

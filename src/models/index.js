@@ -70,7 +70,7 @@ const SlotSchema = new Schema({
 
 /* ---------------- users ---------------- */
 const UserSchema = new Schema({
-  name: { type: String, default: "Driver" },
+  name: { type: String, default: "Citizen" },
   phone: { type: String, index: true, sparse: true },
   email: { type: String, unique: true, sparse: true, lowercase: true, trim: true }, // driver/host sign-in (web app)
   passwordHash: String,

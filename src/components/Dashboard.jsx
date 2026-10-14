@@ -89,7 +89,7 @@ const SIDEBAR_ITEMS = {
 export default function Dashboard({ user, onLogout }) {
   const role     = user?.role     || 'developer';
   const me       = user?.user     || {};
-  const userName = me.name || user?.fullName || (role === 'developer' ? 'Govt Systems Admin' : role === 'worker' ? 'Attendant' : 'Driver');
+  const userName = (me.name === 'Demo Driver' ? 'Demo Citizen' : me.name) || user?.fullName || (role === 'developer' ? 'Govt Systems Admin' : role === 'worker' ? 'Attendant' : 'Citizen');
   const govtPassId = me.username || user?.govtPassId || '';
 
   const [sidebarTab,   setSidebarTab]   = useState('home');
@@ -166,12 +166,12 @@ export default function Dashboard({ user, onLogout }) {
   const roleLabel =
     role === 'developer' ? 'Dev / Admin' :
     role === 'worker'    ? 'Lot Attendant' :
-                           'Citizen Driver';
+                           'Citizen';
 
   const roleSub =
     role === 'developer' ? 'Municipal Dev Console' :
     role === 'worker'    ? 'Attendant Portal' :
-                           'Driver App';
+                           'Citizen App';
 
   /* ────────────────────────────────────────────────────────────────────── */
   return (
@@ -1130,8 +1130,8 @@ function DriverProfile({ userName, me, showToast }) {
           {(me.name || userName).charAt(0)}
         </div>
         <div>
-          <p className="text-base font-bold text-slate-900">{me.name || userName}</p>
-          <p className="text-xs font-mono text-sky-600">Citizen Driver · Park'd</p>
+          <p className="text-base font-bold text-slate-900">{userName}</p>
+          <p className="text-xs font-mono text-sky-600">Citizen · Park'd</p>
           <p className="text-[10px] text-slate-500 mt-0.5">Chandigarh Municipal Corporation</p>
         </div>
       </div>
@@ -1390,7 +1390,7 @@ function SlotActions({ slotId, lot, onClose, showToast }) {
         <div className="space-y-3 text-xs">
           {[['Booking', reservation?._id || '—'], ['Status', reservation?.status === 'held' ? 'Paid, on hold' : 'Awaiting payment'], ['Hold ends', reservation ? `${time(reservation.expiresAt)} (${duration(new Date(reservation.expiresAt) - Date.now())} left)` : '—']]
             .map(([k, v]) => <div key={k} className="flex justify-between"><span className="text-slate-500">{k}</span><span className="font-bold text-slate-800">{v}</span></div>)}
-          <Btn className="w-full" disabled={reservation?.status !== 'held'} busy={busy} onClick={() => run(() => api('POST', `/reservations/${reservation._id}/check-in`), 'Driver checked in')}>Driver arrived · check in</Btn>
+          <Btn className="w-full" disabled={reservation?.status !== 'held'} busy={busy} onClick={() => run(() => api('POST', `/reservations/${reservation._id}/check-in`), 'Citizen checked in')}>Citizen arrived · check in</Btn>
           <Btn tone="danger" className="w-full" busy={busy} onClick={() => run(() => api('POST', `/reservations/${reservation._id}/cancel`), 'Hold released')}>Release hold</Btn>
         </div>
       )}
@@ -1414,7 +1414,7 @@ function WorkerQueue({ lot, showToast }) {
   return (
     <div className="p-6 rounded-3xl bg-white border border-sky-100 shadow-xs max-w-2xl">
       <h3 className="text-base font-bold text-slate-900 pb-4 border-b border-slate-100">Vehicle Queue — {lot.name}</h3>
-      <p className="mt-3 text-xs text-slate-500">Drivers who reserved a slot in the app and are on their way.</p>
+      <p className="mt-3 text-xs text-slate-500">Citizens who reserved a slot in the app and are on their way.</p>
       <div className="space-y-3 mt-4">
         {q.loading && !q.data ? <Loading /> : (q.data ?? []).length === 0 ? <p className="text-xs text-slate-500">No reservations waiting right now.</p> : q.data.map((v, i) => (
           <div key={v.slot._id} className="p-4 rounded-2xl border border-slate-200 flex items-center justify-between gap-3">

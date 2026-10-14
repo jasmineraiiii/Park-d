@@ -10,10 +10,10 @@ const PROBLEMS_DATA = [
     title: 'Circling Markets for 20+ Mins',
     shortTag: 'Sectors 17, 22 & 35 Gridlock',
     icon: Car,
-    summary: 'Drivers spend 15 to 25 minutes circling around commercial sectors hunting for open parking spots, causing traffic jams and extreme driver fatigue.',
+    summary: 'Citizens spend 15 to 25 minutes circling around commercial sectors hunting for open parking spots, causing traffic jams and fatigue.',
     stat: '22 mins',
     statLabel: 'Average time wasted per trip',
-    impact: 'Up to 30% of downtown traffic congestion is caused solely by drivers searching for parking.',
+    impact: 'Up to 30% of downtown traffic congestion is caused solely by citizens searching for parking.',
     cards: [
       {
         image: createSvgImage('Sector 17 & 22 Gridlock', 'Commercial Market Congestion', 'traffic'),
@@ -40,7 +40,7 @@ const PROBLEMS_DATA = [
     summary: 'There is no way to check lot availability from home before turning the car ignition. Commuters leave blind and hope for an open space.',
     stat: '0%',
     statLabel: 'Pre-trip visibility today',
-    impact: 'Drivers reach full parking lots with no alternative suggestions nearby.',
+    impact: 'Citizens reach full parking lots with no alternative suggestions nearby.',
     cards: [
       {
         image: createSvgImage('Departing in the Dark', 'No Live Data Before Trip', 'nav'),

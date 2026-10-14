@@ -116,7 +116,7 @@ const PARKING_LOTS = [
   }
 ];
 
-// Availability colors use the number of spaces a driver can actually choose.
+// Availability colors use the number of spaces a citizen can actually choose.
 const PLENTY_FREE_SLOTS = 12;
 
 // Maps a lot from the Park'd API onto the shape this section already renders.
@@ -269,7 +269,7 @@ export default function FindSlotSection({ onTabSelect, onOpenAuth }) {
                 <div>
                   <h4 className="text-xs font-bold text-slate-900">Live Occupancy Mesh</h4>
                   <p className="text-[11px] text-slate-600 mt-0.5">
-                    Attendants tap their phone on entry and exit. Slot counters drop and rise instantly for all drivers.
+                    Attendants tap their phone on entry and exit. Slot counters drop and rise instantly for all citizens.
                   </p>
                 </div>
               </div>

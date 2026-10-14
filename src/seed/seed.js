@@ -50,7 +50,7 @@ async function main() {
     pinHash: await bcrypt.hash(s.pin, 10), assignedLotIds: s.assignedLotIds ?? [],
   }))));
   const demoPw = await bcrypt.hash("parkd-demo", 10); // demo web sign-in password (change for real use)
-  await User.create({ name: "Demo Driver", phone: "9800000210", email: "driver@demo.parkd", passwordHash: demoPw, role: "driver", vehicleNo: "CH01 AB 1234" });
+  await User.create({ name: "Demo Citizen", phone: "9800000210", email: "driver@demo.parkd", passwordHash: demoPw, role: "driver", vehicleNo: "CH01 AB 1234" });
   const attendantFor = (lotId) => staffDocs.find((u) => u.assignedLotIds.includes(lotId))?._id ?? null;
 
   const now = Date.now();

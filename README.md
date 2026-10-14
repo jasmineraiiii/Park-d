@@ -1,6 +1,6 @@
 # Park'd — Smart Parking for Chandigarh
 
-Park'd brings municipal parking, neighbourhood spaces, drivers, attendants, and city administrators into one live parking network. Drivers can check availability before they leave, while attendants update occupancy from a phone and the Municipal Corporation can respond to busy lots and event demand.
+Park'd brings municipal parking, neighbourhood spaces, citizens, attendants, and city administrators into one live parking network. Citizens can check availability before they leave, while attendants update occupancy from a phone and the Municipal Corporation can respond to busy lots and event demand.
 
 The system is designed to make existing parking easier to find and manage without requiring parking sensors or camera installations at every lot. It combines live updates from attendants with temporary event parking and bookable resident spaces.
 
@@ -23,10 +23,10 @@ The system is designed to make existing parking easier to find and manage withou
 - Open external driving directions to a selected lot. Park'd's in-app route guide is a straight-line direction aid, not live traffic routing.
 - If the backend is unavailable, the landing page can show its clearly labelled simulated sample data.
 
-### Driver dashboard
+### Citizen dashboard
 
 - Search parking and inspect live lot maps and numbered slot layouts.
-- Reserve a space from the limited reservable pool. A reservation holds the selected space for up to 15 minutes while the driver completes the demo payment flow.
+- Reserve a space from the limited reservable pool. A reservation holds the selected space for up to 15 minutes while the citizen completes the demo payment flow.
 - Check in for a reservation or use the walk-in flow, then see the active parking session, vehicle, reservation, and receipts in the dashboard.
 - Find a parked car and review reservations and parking history.
 - See alternative lots when a location is close to full.
@@ -35,16 +35,16 @@ The system is designed to make existing parking easier to find and manage withou
 ### Festival Mode and temporary parking
 
 - Give the Municipal Corporation a way to open temporary parking zones for festivals, events, and overflow demand.
-- Show active zones to drivers on a map with availability, operating windows, entry information, restrictions, and accessibility details where provided.
-- Notify drivers who recently searched near a newly opened zone.
+- Show active zones to citizens on a map with availability, operating windows, entry information, restrictions, and accessibility details where provided.
+- Notify citizens who recently searched near a newly opened zone.
 - Let administrators configure overflow thresholds and buffers, review recommended zones, approve and activate a zone, assign staff, and manage its operating window.
 - Use a demo-fill control to simulate a busy lot and demonstrate the overflow workflow.
 
 ### Neighbourhood Parking
 
 - Let residents list driveways, covered garages, open plots, and stilt parking by the hour.
-- Let drivers filter spaces by location, date, start time, duration, price, walking distance, and vehicle type, then book an available space.
-- Protect host privacy: drivers initially see an approximate area; the exact address unlocks two hours before the booking.
+- Let citizens filter spaces by location, date, start time, duration, price, walking distance, and vehicle type, then book an available space.
+- Protect host privacy: citizens initially see an approximate area; the exact address unlocks two hours before the booking.
 - Give hosts tools to create, edit, pause, and manage listings and bookings, with demo earnings shown in their dashboard.
 - Support booking cancellation, reviews, and reports. Municipal administrators can review listings, moderate reports, and suspend or reinstate listings.
 
@@ -66,9 +66,9 @@ The system is designed to make existing parking easier to find and manage withou
 
 ## Why Park'd is different
 
-- **People-powered availability:** attendants update parking activity on phones, giving drivers useful availability without requiring a sensor or camera in each space.
-- **One network for different kinds of supply:** municipal lots, temporary event overflow, and resident-provided spaces can all help drivers find parking.
-- **Demand response for events:** occupancy thresholds can prompt administrators to open approved temporary capacity and alert nearby drivers.
+- **People-powered availability:** attendants update parking activity on phones, giving citizens useful availability without requiring a sensor or camera in each space.
+- **One network for different kinds of supply:** municipal lots, temporary event overflow, and resident-provided spaces can all help citizens find parking.
+- **Demand response for events:** occupancy thresholds can prompt administrators to open approved temporary capacity and alert nearby citizens.
 - **Privacy-aware sharing:** neighbourhood listings reveal an approximate location first and delay the exact address until shortly before a confirmed booking.
 - **Operational accountability:** slot changes, payment records, reservations, and corrections support digital receipts and an audit trail for municipal operations.
 
@@ -78,7 +78,7 @@ Open the live Park'd app at [park-d.vercel.app](https://park-d.vercel.app/).
 
 **Demo accounts**
 
-- **Driver:** `driver@demo.parkd` / `parkd-demo` (or create an account from the sign-up page)
+- **Citizen:** `driver@demo.parkd` / `parkd-demo` (or create an account from the sign-up page)
 - **Space host:** `host1@demo.parkd` / `parkd-demo` (`host2` and `host3` are also available)
 - **Parking attendant:** Staff ID `att-17`, PIN `1717` (also `att-22` / `2222`, `att-north` / `0808`, `att-east` / `4343`)
 - **Municipal administrator:** Staff ID `mc-admin`, PIN `2026`

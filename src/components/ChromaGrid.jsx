@@ -48,7 +48,7 @@ const DEFAULT_ITEMS = [
   {
     image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&q=80&auto=format&fit=crop',
     title: 'Zero Pre-Trip Visibility',
-    subtitle: 'Drivers cannot check real-time availability before leaving home.',
+    subtitle: 'Citizens cannot check real-time availability before leaving home.',
     accent: '#60a5fa'
   },
   {

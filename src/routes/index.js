@@ -35,7 +35,7 @@ api.post("/auth/driver", loginLimiter, handle(async (req, res) => {
   const cleanPhone = phone ? String(phone).replace(/\D/g, "").slice(-10) : null;
   if (phone && cleanPhone.length !== 10) fail("bad-request", "Enter a 10-digit mobile number.");
   let user = cleanPhone ? await User.findOne({ phone: cleanPhone, role: "driver" }) : null;
-  if (!user) user = await User.create({ role: "driver", phone: cleanPhone ?? undefined, name: name?.trim() || "Driver", vehicleNo: vehicleNo?.trim().toUpperCase() || undefined });
+  if (!user) user = await User.create({ role: "driver", phone: cleanPhone ?? undefined, name: name?.trim() || "Citizen", vehicleNo: vehicleNo?.trim().toUpperCase() || undefined });
   else if (name || vehicleNo) { if (name) user.name = name.trim(); if (vehicleNo) user.vehicleNo = vehicleNo.trim().toUpperCase(); await user.save(); }
   res.json({ token: signToken(user), user: publicUser(user) });
 }));

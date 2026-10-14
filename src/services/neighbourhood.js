@@ -284,8 +284,8 @@ export async function cancelBooking(user, bookingId) {
     if (!done) fail("invalid-state", "This booking changed. Refresh and try again.");
     const l = await Listing.findById(b.listingId, { title: 1 }).lean();
     const other = isHost ? b.driverId : b.hostId;
-    await notify(other, { type: "booking.cancelled", pref: "bookingAlerts", key: `nb-cancel:${b._id}`, title: "Booking cancelled", body: `${l.title} (${b._id}) was cancelled by the ${isHost ? "host" : "driver"}.${refund ? ` Refund ₹${refund} (demo).` : ""}`, link: isHost ? `/booking?id=${b._id}` : "/host" });
-    await audit(user, "nbooking.cancel", `${b._id} cancelled by ${isHost ? "host" : "driver"}, refund ₹${refund} (simulated)`);
+    await notify(other, { type: "booking.cancelled", pref: "bookingAlerts", key: `nb-cancel:${b._id}`, title: "Booking cancelled", body: `${l.title} (${b._id}) was cancelled by the ${isHost ? "host" : "citizen"}.${refund ? ` Refund ₹${refund} (demo).` : ""}`, link: isHost ? `/booking?id=${b._id}` : "/host" });
+    await audit(user, "nbooking.cancel", `${b._id} cancelled by ${isHost ? "host" : "citizen"}, refund ₹${refund} (simulated)`);
     return done;
   });
 }
@@ -413,7 +413,7 @@ export async function hostBookings(host) {
     User.find({ _id: { $in: list.map((b) => b.driverId) } }, { name: 1 }).lean(),
   ]);
   const t = Object.fromEntries(titles.map((l) => [l._id, l.title]));
-  const d = Object.fromEntries(drivers.map((u) => [String(u._id), String(u.name ?? "Driver").split(" ")[0]]));
+  const d = Object.fromEntries(drivers.map((u) => [String(u._id), String(u.name ?? "Citizen").split(" ")[0]]));
   const bookings = list.filter((b) => b.status !== "pending-payment").map((b) => ({ ...b, title: t[b.listingId], driverFirstName: d[String(b.driverId)] }));
   const earned = bookings.filter((b) => b.paymentId).reduce((a, b) => a + b.totalInr - (b.refundInr ?? 0), 0);
   return { bookings, earningsInr: earned, note: "Demo: no real payouts." };
@@ -431,7 +431,7 @@ export async function moderateListing(admin, id, action, note) {
   if (action === "reinstate" && l.status !== "suspended") fail("invalid-state", "Only suspended listings can be reinstated.");
   await Listing.updateOne({ _id: id }, { $set: { status: next, statusNote: note ? String(note).slice(0, 300) : undefined } });
   await audit(admin, `listing.${action}`, `Listing “${l.title}” ${next}${note ? `: ${note}` : ""}`);
-  const msg = { approve: ["Your space is live", `“${l.title}” is approved and visible to drivers.`], reject: ["Listing not approved", `“${l.title}” was not approved.${note ? ` Reason: ${note}` : ""}`], suspend: ["Listing suspended", `“${l.title}” was suspended by the Municipal Corporation.${note ? ` Reason: ${note}` : ""}`], reinstate: ["Listing reinstated", `“${l.title}” is visible to drivers again.`] }[action];
+  const msg = { approve: ["Your space is live", `“${l.title}” is approved and visible to citizens.`], reject: ["Listing not approved", `“${l.title}” was not approved.${note ? ` Reason: ${note}` : ""}`], suspend: ["Listing suspended", `“${l.title}” was suspended by the Municipal Corporation.${note ? ` Reason: ${note}` : ""}`], reinstate: ["Listing reinstated", `“${l.title}” is visible to citizens again.`] }[action];
   await notify(l.hostId, { type: `listing.${action}`, key: `listing-${action}:${id}:${Date.now()}`, title: msg[0], body: msg[1], link: "/host" });
   emitAll("listing:update", { listingId: id, status: next });
   return { ok: true, status: next };

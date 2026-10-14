@@ -25,10 +25,10 @@ export default function AdminFestival({ showToast }) {
     <div className="space-y-6">
       <ErrorNote error={err || r.error} onRetry={r.reload} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Panel title={<span className="flex items-center gap-2"><PartyPopper className="w-4 h-4 text-amber-500" />Festival Mode</span>} sub="The switch only changes the drivers' banner. Extra parking opens only for zones you activate below (or zones with a pre-approved automatic policy)."
+        <Panel title={<span className="flex items-center gap-2"><PartyPopper className="w-4 h-4 text-amber-500" />Festival Mode</span>} sub="The switch only changes the citizens' banner. Extra parking opens only for zones you activate below (or zones with a pre-approved automatic policy)."
           right={d?.setting?.active ? <Pill tone="yellow">BANNER ON</Pill> : <Pill>BANNER OFF</Pill>}>
           <div className="flex flex-col sm:flex-row gap-2">
-            <input className={inputCls} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Label for drivers, e.g. Diwali at Sector 17" maxLength={80} />
+            <input className={inputCls} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Label for citizens, e.g. Diwali at Sector 17" maxLength={80} />
             <Btn tone="purple" busy={busy === 'on'} onClick={() => act('on', () => api('POST', '/admin/festival', { active: true, label: label.trim() || undefined }), 'Festival banner on')}>Turn on</Btn>
             <Btn tone="ghost" busy={busy === 'off'} onClick={() => act('off', () => api('POST', '/admin/festival', { active: false }), 'Festival banner off')}>Turn off</Btn>
           </div>
@@ -53,7 +53,7 @@ export default function AdminFestival({ showToast }) {
                 <td className="py-2.5 pr-3">{e.recommended.length ? e.recommended.map((x) => x.name).join(', ') : <span className="text-slate-400">{e.note}</span>}</td>
                 <td className="py-2.5 pr-3"><Pill tone={tone}>{t}</Pill></td>
                 <td className="py-2.5 whitespace-nowrap">{e.status === 'pending' && (<span className="flex gap-1.5">
-                  <Btn tone="purple" className="!px-3 !py-1.5" busy={busy === `a${e._id}`} onClick={() => act(`a${e._id}`, () => api('POST', `/admin/overflow/${e._id}/activate`, {}), 'Zone opened. Nearby drivers notified.')}><Check className="w-3 h-3" />Activate</Btn>
+                  <Btn tone="purple" className="!px-3 !py-1.5" busy={busy === `a${e._id}`} onClick={() => act(`a${e._id}`, () => api('POST', `/admin/overflow/${e._id}/activate`, {}), 'Zone opened. Nearby citizens notified.')}><Check className="w-3 h-3" />Activate</Btn>
                   <Btn tone="ghost" className="!px-3 !py-1.5" busy={busy === `d${e._id}`} onClick={() => act(`d${e._id}`, () => api('POST', `/admin/overflow/${e._id}/dismiss`), 'Dismissed')}><X className="w-3 h-3" />Dismiss</Btn>
                 </span>)}</td>
               </tr>
@@ -76,7 +76,7 @@ export default function AdminFestival({ showToast }) {
               <td className="py-2.5 pr-3 max-w-[220px]">{z.problems.length ? <span className="text-rose-600">✗ {z.problems.join('; ')}</span> : <span className="text-emerald-600">✓ ready</span>}</td>
               <td className="py-2.5">{on
                 ? <Btn tone="danger" className="!px-3 !py-1.5" busy={busy === `z${z._id}`} onClick={() => window.confirm('Close this zone? New entries stop; parked cars can still exit.') && act(`z${z._id}`, () => api('POST', `/admin/zones/${z._id}/deactivate`), 'Zone closed')}><Ban className="w-3 h-3" />Close</Btn>
-                : <Btn tone="purple" className="!px-3 !py-1.5" disabled={z.problems.length > 0} busy={busy === `z${z._id}`} onClick={() => act(`z${z._id}`, () => api('POST', `/admin/zones/${z._id}/activate`), 'Zone opened. Nearby drivers notified.')}>Activate</Btn>}</td>
+                : <Btn tone="purple" className="!px-3 !py-1.5" disabled={z.problems.length > 0} busy={busy === `z${z._id}`} onClick={() => act(`z${z._id}`, () => api('POST', `/admin/zones/${z._id}/activate`), 'Zone opened. Nearby citizens notified.')}>Activate</Btn>}</td>
             </tr>
           ); })}</tbody>
         </table></div>

@@ -108,7 +108,7 @@ export default function AuthPage({ onReturn, onAuthSuccess }) {
           </p>
         </div>
 
-        {/* Role Selector (Developer / Worker / Driver) above form inputs */}
+        {/* Role Selector (Developer / Worker / Citizen) above form inputs */}
         <div className="mb-6">
           <label className="block text-[11px] font-mono font-bold uppercase text-slate-500 mb-2">
             Select Your Role
@@ -124,7 +124,7 @@ export default function AuthPage({ onReturn, onAuthSuccess }) {
               }`}
             >
               <Car className="w-3.5 h-3.5 text-sky-600" />
-              <span>Driver</span>
+              <span>Citizen</span>
             </button>
 
             <button
@@ -305,7 +305,7 @@ export default function AuthPage({ onReturn, onAuthSuccess }) {
             </button>
 
             <p className="text-[10px] font-mono text-slate-400 text-center leading-relaxed mt-1">
-              Demo accounts — driver: driver@demo.parkd / parkd-demo · host: host1@demo.parkd / parkd-demo<br />
+              Demo accounts — citizen: driver@demo.parkd / parkd-demo · host: host1@demo.parkd / parkd-demo<br />
               worker: att-17 / 1717 · MC (developer): mc-admin / 2026
             </p>
           </div>

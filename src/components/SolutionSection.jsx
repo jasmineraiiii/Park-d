@@ -58,13 +58,13 @@ export default function SolutionSection({ onTabSelect, onOpenAuth }) {
 
         {/* The 3 App Pillars */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Driver App */}
+          {/* Citizen App */}
           <div ref={app1Ref} className="p-7 rounded-3xl bg-slate-50/90 border border-slate-200/90 hover:border-sky-300 transition-all shadow-xs hover:shadow-lg hover:shadow-sky-500/5 group" style={{opacity:0}}>
             <div className="w-12 h-12 rounded-2xl bg-sky-600 text-white flex items-center justify-center mb-5 shadow-sm">
               <Smartphone className="w-6 h-6" />
             </div>
             <div className="text-xs font-bold text-sky-600 uppercase tracking-wider mb-1">01 • For Commuters</div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2.5">Driver App</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-2.5">Citizen App</h3>
             <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mb-4 font-normal">
               Search by sector or landmark, view color-coded availability (green/amber/red), lock a guaranteed 15-minute reservation with UPI, and use Find My Car with walking directions.
             </p>

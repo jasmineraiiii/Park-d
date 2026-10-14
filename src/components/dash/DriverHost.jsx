@@ -6,7 +6,7 @@ import LiveMap from '../LiveMap';
 import { Btn, DemoNote, Empty, ErrorNote, Field, inputCls, Loading, Modal, Panel, Pill } from './ui';
 
 const LSTATUS = { pending: ['Waiting for MC review', 'amber'], active: ['Live', 'green'], paused: ['Paused', 'slate'], rejected: ['Not approved', 'red'], suspended: ['Suspended by MC', 'red'] };
-const BSTATUS = { confirmed: 'Confirmed', completed: 'Completed', 'cancelled-by-driver': 'Cancelled by driver', 'cancelled-by-host': 'Cancelled by you', 'no-show': 'No-show' };
+const BSTATUS = { confirmed: 'Confirmed', completed: 'Completed', 'cancelled-by-driver': 'Cancelled by citizen', 'cancelled-by-host': 'Cancelled by you', 'no-show': 'No-show' };
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function DriverHost({ showToast, onOpenBooking }) {
@@ -46,7 +46,7 @@ export default function DriverHost({ showToast, onOpenBooking }) {
               <p className="mt-1 text-[11px] text-slate-500">{l.availability.map((w) => `${w.days.length === 7 ? 'Every day' : w.days.map((d) => DAYS[d]).join(', ')} ${hhmm12(w.start)}–${hhmm12(w.end)}`).join('; ')}</p>
               {l.statusNote && <p className="mt-2 p-2 rounded-lg bg-rose-50 text-rose-700 text-[11px]">{l.statusNote}</p>}
               <div className="mt-4 flex flex-wrap gap-2">
-                {l.status === 'active' && <Btn tone="ghost" onClick={() => act(() => api('PATCH', `/host/listings/${l._id}`, { status: 'paused' }), "Paused: drivers can't book it")}><Pause className="w-3.5 h-3.5" />Pause</Btn>}
+                {l.status === 'active' && <Btn tone="ghost" onClick={() => act(() => api('PATCH', `/host/listings/${l._id}`, { status: 'paused' }), "Paused: citizens can't book it")}><Pause className="w-3.5 h-3.5" />Pause</Btn>}
                 {l.status === 'paused' && <Btn tone="green" onClick={() => act(() => api('PATCH', `/host/listings/${l._id}`, { status: 'active' }), 'Live again')}><Play className="w-3.5 h-3.5" />Resume</Btn>}
                 {!['rejected', 'suspended'].includes(l.status) && <Btn tone="soft" onClick={() => setEditing(l)}><Pencil className="w-3.5 h-3.5" />Edit</Btn>}
                 <Btn tone="danger" onClick={() => window.confirm("Delete this listing? This can't be undone.") && act(() => api('DELETE', `/host/listings/${l._id}`), 'Listing deleted')}><Trash2 className="w-3.5 h-3.5" />Delete</Btn>
@@ -58,15 +58,15 @@ export default function DriverHost({ showToast, onOpenBooking }) {
       <Panel title="Bookings" sub="Payouts are not real in this demo.">
         {bs.length === 0 ? <p className="text-xs text-slate-500">No bookings yet.</p> : (
           <div className="overflow-x-auto"><table className="w-full text-xs">
-            <thead><tr className="text-left text-[10px] font-mono text-slate-400 uppercase border-b border-slate-100"><th className="pb-2 pr-3">Booking</th><th className="pb-2 pr-3">Space</th><th className="pb-2 pr-3">When</th><th className="pb-2 pr-3">Driver</th><th className="pb-2 pr-3">Amount</th><th className="pb-2 pr-3">Status</th><th /></tr></thead>
+            <thead><tr className="text-left text-[10px] font-mono text-slate-400 uppercase border-b border-slate-100"><th className="pb-2 pr-3">Booking</th><th className="pb-2 pr-3">Space</th><th className="pb-2 pr-3">When</th><th className="pb-2 pr-3">Citizen</th><th className="pb-2 pr-3">Amount</th><th className="pb-2 pr-3">Status</th><th /></tr></thead>
             <tbody className="divide-y divide-slate-100">{bs.map((b) => (
               <tr key={b._id}>
                 <td className="py-2.5 pr-3"><button type="button" className="font-mono text-sky-700 underline" onClick={() => onOpenBooking(b._id)}>{b._id}</button></td>
                 <td className="py-2.5 pr-3">{b.title}</td><td className="py-2.5 pr-3 whitespace-nowrap">{dateTime(b.start)} · {b.hours} h</td>
-                <td className="py-2.5 pr-3">{b.driverFirstName ?? 'Driver'}{b.vehicleNo ? ` · ${b.vehicleNo}` : ''}</td>
+                <td className="py-2.5 pr-3">{b.driverFirstName ?? 'Citizen'}{b.vehicleNo ? ` · ${b.vehicleNo}` : ''}</td>
                 <td className="py-2.5 pr-3">{inr(b.totalInr)}{b.refundInr ? ` (refunded ${inr(b.refundInr)})` : ''}</td>
                 <td className="py-2.5 pr-3">{BSTATUS[b.status] ?? b.status}</td>
-                <td>{b.status === 'confirmed' && new Date(b.end) > Date.now() && <Btn tone="danger" className="!px-3 !py-1.5" onClick={() => window.confirm('Cancel? The driver gets a full refund.') && act(() => api('POST', `/host/bookings/${b._id}/cancel`), 'Booking cancelled. Driver refunded (demo).')}>Cancel</Btn>}</td>
+                <td>{b.status === 'confirmed' && new Date(b.end) > Date.now() && <Btn tone="danger" className="!px-3 !py-1.5" onClick={() => window.confirm('Cancel? The citizen gets a full refund.') && act(() => api('POST', `/host/bookings/${b._id}/cancel`), 'Booking cancelled. Citizen refunded (demo).')}>Cancel</Btn>}</td>
               </tr>
             ))}</tbody>
           </table></div>
@@ -104,7 +104,7 @@ function ListingForm({ listing, onClose, onSaved }) {
   };
 
   return (
-    <Modal wide title={listing ? 'Edit space' : 'List a space'} sub="Drivers only see an approximate area until 2 hours before their booking." onClose={onClose}>
+    <Modal wide title={listing ? 'Edit space' : 'List a space'} sub="Citizens only see an approximate area until 2 hours before their booking." onClose={onClose}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="space-y-3">
           <Field label="Title"><input className={inputCls} value={v.title} onChange={set('title')} placeholder="Covered garage near Sector 22 market" /></Field>

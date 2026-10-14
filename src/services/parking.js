@@ -54,7 +54,7 @@ async function recordPayment({ _id, lot, slotNumber, purpose, method, upiApp, dr
 /** Explains why a driver could not be claimed. */
 async function driverBusyError(driverId) {
   const u = await User.findById(driverId).lean();
-  if (!u) fail("not-found", "Driver account not found. Sign in again.");
+  if (!u) fail("not-found", "Citizen account not found. Sign in again.");
   if (u.activeReservationId) fail("already-active", "You already have an active reservation. Cancel or use it first.");
   fail("already-active", "You already have a car parked. End that session first.");
 }
@@ -257,7 +257,7 @@ async function _driverCheckIn(driver, { lotId, slotId }) {
       vehicleNo: driver.vehicleNo, source: "driver-checkin", feeInr: lot.feeInr,
     });
     emitSlotChange(slot);
-    audit(driver, "slot.occupy", `Driver check-in at ${slot.number}`, lotId, slot.number);
+    audit(driver, "slot.occupy", `Citizen check-in at ${slot.number}`, lotId, slot.number);
     return session.toObject();
   } catch (e) {
     if (slot) await freeSlot(slot._id, { sessionId });

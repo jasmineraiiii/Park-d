@@ -266,7 +266,7 @@ function BookingModal({ id, onClose, showToast }) {
           </div>
           {d.canCancel && (
             <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50">
-              <span className="text-slate-600">{d.role === 'host' ? 'If you cancel, the driver gets a full refund.' : d.booking.status === 'pending-payment' ? 'Nothing has been paid yet.' : d.refundIfCancelledNow ? `Cancel now for a full refund of ${inr(d.refundIfCancelledNow)} (demo).` : 'Less than 1 hour to the start: cancelling is non-refundable.'}</span>
+              <span className="text-slate-600">{d.role === 'host' ? 'If you cancel, the citizen gets a full refund.' : d.booking.status === 'pending-payment' ? 'Nothing has been paid yet.' : d.refundIfCancelledNow ? `Cancel now for a full refund of ${inr(d.refundIfCancelledNow)} (demo).` : 'Less than 1 hour to the start: cancelling is non-refundable.'}</span>
               <Btn tone="danger" busy={busy} onClick={() => window.confirm('Cancel this booking?') && act(() => api('POST', d.role === 'host' ? `/host/bookings/${d.booking._id}/cancel` : `/neighbourhood-bookings/${d.booking._id}/cancel`), 'Booking cancelled')}>Cancel</Btn>
             </div>
           )}
@@ -283,7 +283,7 @@ function BookingModal({ id, onClose, showToast }) {
             <summary className="font-bold text-slate-700 cursor-pointer">Report a problem to the Municipal Corporation</summary>
             <div className="mt-3 space-y-2">
               <select className={inputCls} value={kind} onChange={(e) => setKind(e.target.value)}>
-                <option value="space-blocked">Space was blocked</option><option value="no-show">{d.role === 'host' ? "Driver didn't show up" : "Host didn't respond"}</option><option value="damage">Damage</option><option value="safety">Safety concern</option><option value="other">Something else</option>
+                <option value="space-blocked">Space was blocked</option><option value="no-show">{d.role === 'host' ? "Citizen didn't show up" : "Host didn't respond"}</option><option value="damage">Damage</option><option value="safety">Safety concern</option><option value="other">Something else</option>
               </select>
               <textarea className={inputCls} rows={2} value={details} onChange={(e) => setDetails(e.target.value)} placeholder="What happened?" />
               <Btn tone="ghost" busy={busy} onClick={() => act(() => api('POST', '/reports', { bookingId: d.booking._id, kind, details }), 'Report sent to the MC').then(() => setDetails(''))}>Send report</Btn>
