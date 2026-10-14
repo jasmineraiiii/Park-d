@@ -114,6 +114,6 @@ Payments, refunds, and host earnings are simulated. **No money or funds are tran
 
 ## Deploy
 
-The frontend is configured for Vercel (`vercel.json`). Set `VITE_API_URL` to the deployed backend URL. On the backend, set `CORS_ORIGIN` to the deployed frontend URL.
+The frontend is configured for Vercel (`vercel.json`). Set `VITE_API_URL` to the deployed backend URL and `VITE_GOOGLE_CLIENT_ID` to the Google OAuth **Web client ID**. On the backend, set `CORS_ORIGIN` to `https://park-d.vercel.app` and `GOOGLE_CLIENT_ID` to that same Web client ID. The client ID is public configuration; never put the OAuth client secret in the frontend. After changing environment variables, redeploy the frontend and backend. Google sign-in is configured for the Vercel site; localhost must be added as an authorized JavaScript origin before using Google sign-in locally.
 
 See [API.md](API.md) for backend endpoints, live events, data shapes, and demo workflows.

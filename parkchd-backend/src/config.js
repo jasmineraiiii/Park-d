@@ -14,6 +14,7 @@ export const ENV = {
   port: Number(process.env.PORT) || 4000,
   mongoUri: process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/parkchd",
   jwtSecret: process.env.JWT_SECRET || "",
+  googleClientId: process.env.GOOGLE_CLIENT_ID || "",
   groqKey: process.env.GROQ_API_KEY || "",
   groqModel: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
   corsOrigin: process.env.CORS_ORIGIN || "*",

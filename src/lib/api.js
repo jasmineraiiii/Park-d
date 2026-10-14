@@ -58,6 +58,14 @@ export async function signIn({ role, isSignUp, fullName, email, password, staffI
   return s;
 }
 
+export async function signInWithGoogle(credential) {
+  const r = await api('POST', '/auth/google', { credential }, null);
+  const s = { token: r.token, user: r.user, role: 'driver' };
+  session.set(s);
+  resetSocket();
+  return s;
+}
+
 /* ---------- live updates ---------- */
 let sock = null;
 export function getSocket() {

@@ -73,6 +73,7 @@ const UserSchema = new Schema({
   name: { type: String, default: "Driver" },
   phone: { type: String, index: true, sparse: true },
   email: { type: String, unique: true, sparse: true, lowercase: true, trim: true }, // driver/host sign-in (web app)
+  googleSub: { type: String, unique: true, sparse: true }, // verified Google identity for web sign-in
   passwordHash: String,
   username: { type: String, unique: true, sparse: true }, // staff sign-in id, e.g. "att-17"
   pinHash: String,

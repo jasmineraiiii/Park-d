@@ -1,8 +1,10 @@
 // All API routes. Full request/response examples are in API.md.
 
 import bcrypt from "bcryptjs";
+import { createPublicKey, verify as verifySignature } from "node:crypto";
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
+import { ENV } from "../config.js";
 import { fail, handle } from "../errors.js";
 import { optionalAuth, requireAuth, signToken } from "../middleware/auth.js";
 import { Listing, Lot, Payment, Reservation, Session, Slot, User } from "../models/index.js";
@@ -57,6 +59,64 @@ api.post("/auth/login", loginLimiter, handle(async (req, res) => {
   const { email, password } = req.body ?? {};
   const user = await User.findOne({ email: String(email ?? "").trim().toLowerCase(), role: "driver" });
   if (!user?.passwordHash || !(await bcrypt.compare(String(password ?? ""), user.passwordHash))) fail("unauthenticated", "That email and password don't match.");
+  res.json({ token: signToken(user), user: publicUser(user) });
+}));
+
+// Verify a Google Identity Services ID token before creating a Park'd session.
+let googleKeysCache = { keys: null, expiresAt: 0 };
+async function verifyGoogleCredential(credential) {
+  const parts = String(credential ?? "").split(".");
+  if (parts.length !== 3) fail("unauthenticated", "Google sign-in could not be verified. Please try again.");
+  let header, claims, signature;
+  try {
+    header = JSON.parse(Buffer.from(parts[0], "base64url").toString("utf8"));
+    claims = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+    signature = Buffer.from(parts[2], "base64url");
+  } catch { fail("unauthenticated", "Google sign-in could not be verified. Please try again."); }
+  if (header.alg !== "RS256" || !header.kid) fail("unauthenticated", "Google sign-in could not be verified. Please try again.");
+
+  if (!googleKeysCache.keys || Date.now() >= googleKeysCache.expiresAt) {
+    const response = await fetch("https://www.googleapis.com/oauth2/v3/certs");
+    if (!response.ok) throw new Error("Could not retrieve Google's signing keys.");
+    const data = await response.json();
+    const maxAge = Number(response.headers.get("cache-control")?.match(/max-age=(\d+)/)?.[1] || 3600);
+    googleKeysCache = { keys: data.keys || [], expiresAt: Date.now() + maxAge * 1000 };
+  }
+  const jwk = googleKeysCache.keys.find((key) => key.kid === header.kid && key.alg === "RS256");
+  if (!jwk || !verifySignature("RSA-SHA256", Buffer.from(`${parts[0]}.${parts[1]}`), createPublicKey({ key: jwk, format: "jwk" }), signature)) {
+    fail("unauthenticated", "Google sign-in could not be verified. Please try again.");
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  const validIssuer = claims.iss === "accounts.google.com" || claims.iss === "https://accounts.google.com";
+  if (!validIssuer || claims.aud !== ENV.googleClientId || !claims.sub || !claims.email || claims.email_verified !== true || !claims.exp || claims.exp <= now || (claims.iat && claims.iat > now + 300)) {
+    fail("unauthenticated", "Your Google sign-in is invalid or your email is not verified.");
+  }
+  return claims;
+}
+
+api.post("/auth/google", loginLimiter, handle(async (req, res) => {
+  if (!ENV.googleClientId) fail("invalid-state", "Google sign-in is not configured on the server yet.");
+  const claims = await verifyGoogleCredential(req.body?.credential);
+  const email = String(claims.email).trim().toLowerCase();
+  let user = await User.findOne({ googleSub: claims.sub, role: "driver" });
+
+  if (!user) {
+    user = await User.findOne({ email });
+    if (user && user.role !== "driver") fail("invalid-state", "This email is already assigned to a staff account.");
+    if (!user) user = new User({ email, name: String(claims.name || email.split("@")[0]).trim().slice(0, 60) || "Citizen", role: "driver" });
+    if (user.googleSub && user.googleSub !== claims.sub) fail("invalid-state", "This account is linked to a different Google account.");
+    user.googleSub = claims.sub;
+    try {
+      await user.save();
+    } catch (error) {
+      if (error?.code !== 11000) throw error;
+      const linkedUser = await User.findOne({ googleSub: claims.sub, role: "driver" });
+      if (!linkedUser) fail("invalid-state", "An account with this email already exists. Sign in with that account first.");
+      user = linkedUser;
+    }
+  }
+
   res.json({ token: signToken(user), user: publicUser(user) });
 }));
 

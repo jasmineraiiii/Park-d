@@ -90,6 +90,7 @@ Web app accounts (2.0):
 | --- | --- | --- | --- |
 | POST | `/auth/register` | `{ name, email, password (8+ chars), vehicleNo?, phone? }` | `201 { token, user }` — a driver account |
 | POST | `/auth/login` | `{ email, password }` | `{ token, user }` (drivers only; staff use `/auth/attendant` and `/auth/admin`) |
+| POST | `/auth/google` | `{ credential }` | `{ token, user }` (verifies a Google Identity Services ID token and signs in or creates a citizen account; requires `GOOGLE_CLIENT_ID`) |
 | PATCH | `/me` | `{ name?, vehicleNo? }` | `{ user }` |
 
 `user` now also has `email` and (for staff) `username`. Demo web logins: `driver@demo.parkd`, `host1@demo.parkd` … `host3@demo.parkd`, password `parkd-demo`.
