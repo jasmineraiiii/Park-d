@@ -74,7 +74,16 @@ The system is designed to make existing parking easier to find and manage withou
 
 ## Run it online
 
-Open the live Park'd app at [park-d.vercel.app](https://park-d.vercel.app/). Demo sign-in accounts are listed below.
+Open the live Park'd app at [park-d.vercel.app](https://park-d.vercel.app/).
+
+**Demo accounts**
+
+- **Driver:** `driver@demo.parkd` / `parkd-demo` (or create an account from the sign-up page)
+- **Space host:** `host1@demo.parkd` / `parkd-demo` (`host2` and `host3` are also available)
+- **Parking attendant:** Staff ID `att-17`, PIN `1717` (also `att-22` / `2222`, `att-north` / `0808`, `att-east` / `4343`)
+- **Municipal administrator:** Staff ID `mc-admin`, PIN `2026`
+
+Google and Facebook sign-in buttons are placeholders and are not connected.
 
 ## Run locally
 
@@ -99,17 +108,6 @@ npm install --registry=https://registry.npmjs.org/ --replace-registry-host=regis
 ```
 
 Build the frontend with `npm run build`.
-
-## Demo sign-in
-
-| Role | Sign in with | Notes |
-| --- | --- | --- |
-| Driver | `driver@demo.parkd` / `parkd-demo` | You can also create a driver account from the sign-up page. |
-| Driver who hosts spaces | `host1@demo.parkd` / `parkd-demo` | `host2@demo.parkd` and `host3@demo.parkd` are also available. |
-| Parking attendant | Staff ID `att-17`, PIN `1717` | Other demo accounts: `att-22` / `2222`, `att-north` / `0808`, `att-east` / `4343`. |
-| Municipal administrator | Staff ID `mc-admin`, PIN `2026` | Staff accounts are issued by the Municipal Corporation. |
-
-Google and Facebook sign-in buttons are placeholders and are not connected.
 
 ## Demo mode — no money or funds are transferred
 
