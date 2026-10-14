@@ -83,7 +83,6 @@ Open the live Park'd app at [park-d.vercel.app](https://park-d.vercel.app/).
 - **Parking attendant:** Staff ID `att-17`, PIN `1717` (also `att-22` / `2222`, `att-north` / `0808`, `att-east` / `4343`)
 - **Municipal administrator:** Staff ID `mc-admin`, PIN `2026`
 
-Google and Facebook sign-in buttons are placeholders and are not connected.
 
 ## Run locally
 
