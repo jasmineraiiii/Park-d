@@ -69,7 +69,7 @@ export default function AuthPage({ onReturn, onAuthSuccess }) {
       googleButtonRef.current.replaceChildren();
       window.google.accounts.id.renderButton(googleButtonRef.current, {
         theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with',
-        logo_alignment: 'left', width: Math.min(380, googleButtonRef.current.clientWidth || 380),
+        logo_alignment: 'left', width: Math.min(400, googleButtonRef.current.clientWidth || 400),
       });
     }).catch((err) => { if (mounted) setError(err.message); });
     return () => { mounted = false; };
@@ -97,10 +97,6 @@ export default function AuthPage({ onReturn, onAuthSuccess }) {
     } finally {
       setBusy(false);
     }
-  };
-
-  const handleSocial = (provider) => {
-    setError(`${provider} sign-in isn't connected yet. Use ${isStaff ? 'your staff ID and PIN' : 'email and password'} instead.`);
   };
 
   const toggleMode = () => {
@@ -323,25 +319,14 @@ export default function AuthPage({ onReturn, onAuthSuccess }) {
               <div className="flex-grow border-t border-slate-200" />
             </div>
 
-            {/* Social Logins — Clean White Translucent Frosted Glass */}
+            {/* Google sign-in */}
             {isStaff ? (
               <p className="text-xs text-slate-500 text-center">Google sign-in is for citizens. Use your staff ID and PIN.</p>
             ) : googleClientId ? (
-              <div ref={googleButtonRef} className="min-h-10 flex justify-center" aria-label="Continue with Google" />
+              <div ref={googleButtonRef} className="min-h-12 w-full flex justify-center" aria-label="Continue with Google" />
             ) : (
               <p className="text-xs text-amber-700 text-center">Google sign-in needs VITE_GOOGLE_CLIENT_ID configured for the frontend.</p>
             )}
-
-            <button
-              type="button"
-              onClick={() => handleSocial('Facebook')}
-              className="w-full py-3 rounded-full bg-white/90 hover:bg-white text-slate-700 font-semibold text-xs sm:text-sm border border-slate-200 flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-xs hover:border-slate-300"
-            >
-              <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="#1877F2">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-              <span>{signUpMode ? 'Sign up with Facebook' : 'Sign in with Facebook'}</span>
-            </button>
 
             <p className="text-[10px] font-mono text-slate-400 text-center leading-relaxed mt-1">
               Demo accounts — citizen: driver@demo.parkd / parkd-demo · host: host1@demo.parkd / parkd-demo<br />
