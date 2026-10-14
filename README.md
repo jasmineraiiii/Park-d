@@ -1,69 +1,118 @@
-# Park'd — web app
+# Park'd — Smart Parking for Chandigarh
 
-The Park'd UI (React 19 + Vite + Tailwind 4) connected to the Park'd backend
-(`parkchd-backend`: Express, MongoDB, Socket.io). The landing page, sign-in
-page and dashboards are the original design; their data and buttons now come
-from the live API.
+Park'd brings municipal parking, neighbourhood spaces, drivers, attendants, and city administrators into one live parking network. Drivers can check availability before they leave, while attendants update occupancy from a phone and the Municipal Corporation can respond to busy lots and event demand.
 
-## Run it locally
+The system is designed to make existing parking easier to find and manage without requiring parking sensors or camera installations at every lot. It combines live updates from attendants with temporary event parking and bookable resident spaces.
 
-1. Start the backend first (in the `parkchd-backend` folder):
-   ```bash
-   npm install
-   npm run seed      # demo data: lots, temporary zones, hosts, listings
-   npm run dev       # http://localhost:4000
-   ```
-2. Start this app:
-   ```bash
-   npm install
-   npm run dev       # http://localhost:5173  (/api and live updates are proxied to :4000)
-   ```
-   If `npm install` can't reach `registry.npmmirror.com` (set in `.npmrc`), run
-   `npm install --registry=https://registry.npmjs.org/ --replace-registry-host=registry.npmmirror.com`.
-3. `npm run build` checks that everything compiles.
+## Tech stack
+
+- **Frontend:** React 19, Vite 6, Tailwind CSS 4, Leaflet, Socket.io Client
+- **Backend:** Node.js, Express, MongoDB with Mongoose, Socket.io
+- **Authentication:** JSON Web Tokens and bcrypt
+- **Maps:** Leaflet and OpenStreetMap tiles; Google Maps can open turn-by-turn directions
+- **AI integrations:** Groq-powered insights when configured, with rule-based fallback
+- **Deployment:** Vercel frontend; backend can run as a separate Node service
+
+## What Park'd can do
+
+### Find municipal parking
+
+- Browse Chandigarh Municipal Corporation parking locations and search by sector or landmark.
+- See current availability, capacity, occupancy, opening status, parking fee, and reservable spaces.
+- Use map pins and lot details to compare nearby options. Availability is color-coded to make busy lots easy to spot.
+- Open external driving directions to a selected lot. Park'd's in-app route guide is a straight-line direction aid, not live traffic routing.
+- If the backend is unavailable, the landing page can show its clearly labelled simulated sample data.
+
+### Driver dashboard
+
+- Search parking and inspect live lot maps and numbered slot layouts.
+- Reserve a space from the limited reservable pool. A reservation holds the selected space for up to 15 minutes while the driver completes the demo payment flow.
+- Check in for a reservation or use the walk-in flow, then see the active parking session, vehicle, reservation, and receipts in the dashboard.
+- Find a parked car and review reservations and parking history.
+- See alternative lots when a location is close to full.
+- Receive in-app alerts for relevant parking, booking, and event updates; notification preferences can be managed from the profile.
+
+### Festival Mode and temporary parking
+
+- Give the Municipal Corporation a way to open temporary parking zones for festivals, events, and overflow demand.
+- Show active zones to drivers on a map with availability, operating windows, entry information, restrictions, and accessibility details where provided.
+- Notify drivers who recently searched near a newly opened zone.
+- Let administrators configure overflow thresholds and buffers, review recommended zones, approve and activate a zone, assign staff, and manage its operating window.
+- Use a demo-fill control to simulate a busy lot and demonstrate the overflow workflow.
+
+### Neighbourhood Parking
+
+- Let residents list driveways, covered garages, open plots, and stilt parking by the hour.
+- Let drivers filter spaces by location, date, start time, duration, price, walking distance, and vehicle type, then book an available space.
+- Protect host privacy: drivers initially see an approximate area; the exact address unlocks two hours before the booking.
+- Give hosts tools to create, edit, pause, and manage listings and bookings, with demo earnings shown in their dashboard.
+- Support booking cancellation, reviews, and reports. Municipal administrators can review listings, moderate reports, and suspend or reinstate listings.
+
+### Parking attendant tools
+
+- Give each attendant access to assigned municipal lots, including assigned temporary zones.
+- Update numbered slots as vehicles enter and leave, record cash or UPI payment method, and correct mistakes with a logged reason.
+- See the vehicle queue for app reservations and the current live slot grid.
+- Review a 24-hour activity report and export it as CSV.
+- Include a barrier control in the demo interface; it is a simulation and is not connected to physical gate hardware.
+
+### Municipal Corporation dashboard
+
+- Monitor network capacity, current occupancy, available spaces, open lots, and simulated revenue from a live overview.
+- Review entries-per-hour analytics, busy lots, system audit events, and AI-generated operational insights (with rule-based fallback).
+- View lots on a city map, adjust lot fees and overflow settings, manage staff, and inspect API response times measured by the browser.
+- Manage Festival Mode zones and moderate Neighbourhood Parking listings and reports.
+- Follow occupancy and zone changes as they happen through live updates.
+
+## Why Park'd is different
+
+- **People-powered availability:** attendants update parking activity on phones, giving drivers useful availability without requiring a sensor or camera in each space.
+- **One network for different kinds of supply:** municipal lots, temporary event overflow, and resident-provided spaces can all help drivers find parking.
+- **Demand response for events:** occupancy thresholds can prompt administrators to open approved temporary capacity and alert nearby drivers.
+- **Privacy-aware sharing:** neighbourhood listings reveal an approximate location first and delay the exact address until shortly before a confirmed booking.
+- **Operational accountability:** slot changes, payment records, reservations, and corrections support digital receipts and an audit trail for municipal operations.
+
+## Run locally
+
+Start the backend first, then the frontend.
+
+```bash
+# Terminal 1 — backend
+cd parkchd-backend
+npm install
+npm run seed      # demo lots, temporary zones, hosts, and listings
+npm run dev       # http://localhost:4000
+
+# Terminal 2 — frontend, from the repository root
+npm install
+npm run dev       # http://localhost:5173; /api and live updates proxy to :4000
+```
+
+If `npm install` cannot reach the registry configured in `.npmrc`, use:
+
+```bash
+npm install --registry=https://registry.npmjs.org/ --replace-registry-host=registry.npmmirror.com
+```
+
+Build the frontend with `npm run build`.
 
 ## Demo sign-in
 
-| Role on the sign-in page | Log in with | Backend account |
+| Role | Sign in with | Notes |
 | --- | --- | --- |
-| Driver | `driver@demo.parkd` / `parkd-demo` (or **Sign Up** with any email) | driver |
-| Driver (host) | `host1@demo.parkd` / `parkd-demo` (also host2, host3) | driver who lists spaces |
-| Worker | Staff ID `att-17`, PIN `1717` (also att-22 / 2222, att-north / 0808, att-east / 4343) | attendant |
-| Developer | Staff ID `mc-admin`, PIN `2026` | Municipal Corporation admin |
+| Driver | `driver@demo.parkd` / `parkd-demo` | You can also create a driver account from the sign-up page. |
+| Driver who hosts spaces | `host1@demo.parkd` / `parkd-demo` | `host2@demo.parkd` and `host3@demo.parkd` are also available. |
+| Parking attendant | Staff ID `att-17`, PIN `1717` | Other demo accounts: `att-22` / `2222`, `att-north` / `0808`, `att-east` / `4343`. |
+| Municipal administrator | Staff ID `mc-admin`, PIN `2026` | Staff accounts are issued by the Municipal Corporation. |
 
-Staff accounts are issued by the MC, so Worker and Developer only have **Log in**.
-Google / Facebook sign-in buttons say they aren't connected yet.
+Google and Facebook sign-in buttons are placeholders and are not connected.
 
-## What's connected
+## Demo mode — no money or funds are transferred
 
-- **Landing page "Find a slot"**: live lot counts from the server. If the server
-  can't be reached it shows the built-in sample list, labelled "Simulated live data".
-- **Driver dashboard**: Home (active reservation / parked car, receipts), Explore
-  (server search, live map with pins and a straight-line guide, live slot view,
-  reserve one of the 10% reservable slots, demo UPI payment, walk-in check-in,
-  alternatives when a lot is 85%+ full), **Festival Mode**, **Neighbourhood**
-  (filters, approximate-location map, 3-step booking, address unlocks 2 h before
-  the start, cancel / review / report), Reservations, My Car (Find my car),
-  **Host a Space** (list, edit, pause, delete, bookings, demo earnings), Profile
-  (name, notification preferences).
-- **Worker dashboard**: assigned lots incl. temporary zones, live slot grid with
-  entry / payment / exit / correction, vehicle queue of app reservations, 24 h report
-  with CSV export.
-- **Developer (MC) dashboard**: live overview, entries-per-hour chart, audit log,
-  AI insights, **Festival Mode** (banner, overflow recommendations, zone approval /
-  activation, thresholds, demo fill), **Neighbourhood** moderation, all lots with fee
-  editing, staff list, API response times measured from the browser.
-- **Notifications** bell (all roles), pushed live over Socket.io.
-
-## Not real in this demo
-
-Payments, refunds and host earnings are simulated (no money moves). Lots, zones,
-hosts and listings are fictional demo data. The barrier gate control has no
-hardware behind it. Drive times and live traffic come from Google Maps when you
-open directions; Park'd itself only draws a straight-line guide. Phone push
-notifications and Google / Facebook sign-in are not connected.
+Payments, refunds, and host earnings are simulated. **No money or funds are transferred.** Demo lots, temporary zones, hosts, and neighbourhood listings are fictional. The barrier control does not operate physical hardware. Park'd's in-app map guide is not live traffic routing; external directions open in Google Maps. Phone push notifications are not connected.
 
 ## Deploy
 
-Vercel (see `vercel.json`): set `VITE_API_URL` to the deployed backend URL.
-On the backend set `CORS_ORIGIN` to the Vercel URL (or `*` for the hackathon).
+The frontend is configured for Vercel (`vercel.json`). Set `VITE_API_URL` to the deployed backend URL. On the backend, set `CORS_ORIGIN` to the deployed frontend URL.
+
+See [API.md](API.md) for backend endpoints, live events, data shapes, and demo workflows.
