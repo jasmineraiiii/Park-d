@@ -72,6 +72,10 @@ The system is designed to make existing parking easier to find and manage withou
 - **Privacy-aware sharing:** neighbourhood listings reveal an approximate location first and delay the exact address until shortly before a confirmed booking.
 - **Operational accountability:** slot changes, payment records, reservations, and corrections support digital receipts and an audit trail for municipal operations.
 
+## Run it online
+
+Open the live Park'd app at [park-d.vercel.app](https://park-d.vercel.app/). Demo sign-in accounts are listed below.
+
 ## Run locally
 
 Start the backend first, then the frontend.
