@@ -30,47 +30,47 @@ export default function Header({ onTabSelect, activeTab, onOpenAuth }) {
         </div>
 
         {/* Top Navigation Tabs - Matching Screenshot 5 Structure */}
-        <nav className="flex items-center gap-4 sm:gap-8 font-mono text-xs sm:text-sm tracking-wider uppercase">
+        <nav className="flex items-center gap-0.5 sm:gap-4 lg:gap-8 font-mono text-[9px] sm:text-xs lg:text-sm tracking-normal sm:tracking-wider uppercase">
           <button
             type="button"
             onClick={() => onTabSelect('tab-overview')}
-            className={`transition-all duration-200 cursor-pointer flex items-center gap-1.5 py-1 px-2 rounded-md ${
+            className={`transition-all duration-200 cursor-pointer flex items-center gap-1 sm:gap-1.5 py-1 px-1 sm:px-2 rounded-md ${
               activeTab === 'tab-overview'
                 ? 'text-sky-600 font-extrabold bg-sky-50 ring-1 ring-sky-300'
                 : 'text-slate-600 hover:text-slate-900 font-semibold'
             }`}
           >
-            <span className={activeTab === 'tab-overview' ? 'text-sky-600' : 'text-slate-600'}>01</span>
-            <span className="text-sky-300 font-light">//</span>
-            <span>OVERVIEW</span>
+            <span className={`hidden sm:inline ${activeTab === 'tab-overview' ? 'text-sky-600' : 'text-slate-600'}`}>01</span>
+            <span className="hidden sm:inline text-sky-300 font-light">//</span>
+            <span className="sm:hidden">HOME</span><span className="hidden sm:inline">OVERVIEW</span>
           </button>
 
           <button
             type="button"
             onClick={() => onTabSelect('tab-problem')}
-            className={`transition-all duration-200 cursor-pointer flex items-center gap-1.5 py-1 px-2 rounded-md ${
+            className={`transition-all duration-200 cursor-pointer flex items-center gap-1 sm:gap-1.5 py-1 px-1 sm:px-2 rounded-md ${
               activeTab === 'tab-problem'
                 ? 'text-sky-600 font-extrabold bg-sky-50 ring-1 ring-sky-300'
                 : 'text-slate-600 hover:text-slate-900 font-semibold'
             }`}
           >
-            <span className={activeTab === 'tab-problem' ? 'text-sky-600' : 'text-slate-600'}>02</span>
-            <span className="text-sky-300 font-light">//</span>
-            <span>FIND A SLOT</span>
+            <span className={`hidden sm:inline ${activeTab === 'tab-problem' ? 'text-sky-600' : 'text-slate-600'}`}>02</span>
+            <span className="hidden sm:inline text-sky-300 font-light">//</span>
+            <span className="sm:hidden">FIND</span><span className="hidden sm:inline">FIND A SLOT</span>
           </button>
 
           <button
             type="button"
             onClick={() => onTabSelect('tab-solution')}
-            className={`transition-all duration-200 cursor-pointer flex items-center gap-1.5 py-1 px-2 rounded-md ${
+            className={`transition-all duration-200 cursor-pointer flex items-center gap-1 sm:gap-1.5 py-1 px-1 sm:px-2 rounded-md ${
               activeTab === 'tab-solution'
                 ? 'text-sky-600 font-extrabold bg-sky-50 ring-1 ring-sky-300'
                 : 'text-slate-600 hover:text-slate-900 font-semibold'
             }`}
           >
-            <span className={activeTab === 'tab-solution' ? 'text-sky-600' : 'text-slate-600'}>03</span>
-            <span className="text-sky-300 font-light">//</span>
-            <span>WHAT PARK'D DOES</span>
+            <span className={`hidden sm:inline ${activeTab === 'tab-solution' ? 'text-sky-600' : 'text-slate-600'}`}>03</span>
+            <span className="hidden sm:inline text-sky-300 font-light">//</span>
+            <span className="sm:hidden">ABOUT</span><span className="hidden sm:inline">WHAT PARK'D DOES</span>
           </button>
         </nav>
 

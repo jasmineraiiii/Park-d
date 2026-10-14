@@ -224,7 +224,7 @@ export default function FindSlotSection({ onTabSelect, onOpenAuth }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
           {/* LEFT SIDE */}
-          <div ref={leftRef} className="lg:col-span-5 space-y-6 lg:sticky lg:top-24" style={{opacity:0}}>
+          <div ref={leftRef} className="order-2 lg:order-1 lg:col-span-5 space-y-6 lg:sticky lg:top-24" style={{opacity:0}}>
             <div>
               <div ref={badgeRef} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-100 text-sky-800 text-xs font-semibold mb-4 border border-sky-200" style={{opacity:0}}>
                 <Sparkles className="w-3.5 h-3.5 text-sky-600" />
@@ -313,7 +313,7 @@ export default function FindSlotSection({ onTabSelect, onOpenAuth }) {
           </div>
 
           {/* RIGHT SIDE */}
-          <div ref={rightRef} className="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-7 border border-sky-100 shadow-xl shadow-sky-500/5" style={{opacity:0}}>
+          <div ref={rightRef} className="order-1 lg:order-2 lg:col-span-7 bg-white rounded-3xl p-5 sm:p-7 border border-sky-100 shadow-xl shadow-sky-500/5" style={{opacity:0}}>
             {/* Top Sub-Bar: Chandigarh Location Label */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800">

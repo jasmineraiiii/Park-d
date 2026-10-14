@@ -128,7 +128,7 @@ export default function VerticalNav({ activeTab = 'tab-overview' }) {
       aria-label="Scroll progress"
       onMouseEnter={showTooltip}
       onMouseLeave={hideTooltip}
-      className="fixed left-4 sm:left-6 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center select-none"
+      className="hidden sm:flex fixed left-4 sm:left-6 top-1/2 -translate-y-1/2 z-50 flex-col items-center select-none"
     >
       {/* Tooltip */}
       <div

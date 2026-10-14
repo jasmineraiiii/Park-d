@@ -55,7 +55,7 @@ export default function HeroSection({ onTabSelect, onOpenAuth }) {
         </p>
 
         {/* 3 Metric Pills */}
-        <div className="grid grid-cols-3 gap-3 sm:gap-6 w-full max-w-xl mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6 w-full max-w-xl mb-10">
           <div className="animate-fade-in-scale delay-400 p-3.5 sm:p-4 rounded-2xl bg-white/90 border border-sky-100 shadow-sm backdrop-blur-md text-center">
             <div className="text-2xl sm:text-3xl font-extrabold text-sky-600">₹14</div>
             <div className="text-xs text-slate-600 font-semibold mt-0.5">Flat Municipal Fee</div>
@@ -66,7 +66,7 @@ export default function HeroSection({ onTabSelect, onOpenAuth }) {
             <div className="text-xs text-slate-600 font-semibold mt-0.5">Sensors or Cameras</div>
           </div>
 
-          <div className="animate-fade-in-scale delay-600 p-3.5 sm:p-4 rounded-2xl bg-white/90 border border-sky-100 shadow-sm backdrop-blur-md text-center">
+          <div className="col-span-2 sm:col-span-1 animate-fade-in-scale delay-600 p-3.5 sm:p-4 rounded-2xl bg-white/90 border border-sky-100 shadow-sm backdrop-blur-md text-center">
             <div className="text-2xl sm:text-3xl font-extrabold text-sky-600">15 min</div>
             <div className="text-xs text-slate-600 font-semibold mt-0.5">Guaranteed Lock</div>
           </div>
