@@ -10,10 +10,20 @@ The system is designed to make existing parking easier to find and manage withou
 - **Backend:** Node.js, Express, MongoDB with Mongoose, Socket.io
 - **Authentication:** JSON Web Tokens and bcrypt
 - **Maps:** Leaflet and OpenStreetMap tiles; Google Maps can open turn-by-turn directions
-- **AI integrations:** Groq-powered insights when configured, with rule-based fallback
+- **AI integrations:** Hands-free browser voice assistant (Web Speech API — SpeechRecognition & SpeechSynthesis), Groq-powered insights when configured, with rule-based fallback
 - **Deployment:** Vercel frontend; backend can run as a separate Node service
 
 ## What Park'd can do
+
+### Hands-free AI voice assistant
+
+- **Completely voice-driven parking:** Citizens can ask for parking, check live availability, and reserve a spot entirely hands-free while driving, without needing to browse or tap through the app.
+- **Conversational destination search:** Say destination names in everyday natural language (e.g., *"Take me to Sector 17"*, *"Parking near Elante Mall"*, or *"Sukhna Lake"*). The assistant speaks out total live vacancies across nearby lots and recommends the closest open municipal parking lot.
+- **ETA & arrival vacancy forecasting:** Predicts whether spots will still be available when the citizen arrives based on distance, travel time, and occupancy trends over the past hour.
+- **Voice reservation & payment:** Citizens can say *"Yes"* to reserve a space immediately, select a payment method via voice (Google Pay, PhonePe, Paytm, or BHIM), and receive a 30-minute hold.
+- **Exact bay directions & navigation:** Speaks turn-by-turn guidance right down to the specific bay (e.g., *"Row B, 4th bay from the entrance"*) and automatically opens Google Maps turn-by-turn driving navigation.
+- **Hands-free slot resolution:** If someone has occupied a citizen's walk-in bay, saying *"Someone is in my slot"* triggers an automatic re-assignment to another free bay and alerts the attendant on duty.
+- **Interactive robot avatar:** Animated floating companion with interactive moods (floating, blinking, waving on hover, and speech bounce) using native browser Web Speech synthesis with Indian English voice prioritization and zero third-party voice latency or API key dependencies.
 
 ### Find municipal parking
 
@@ -26,7 +36,7 @@ The system is designed to make existing parking easier to find and manage withou
 ### Citizen dashboard
 
 - Search parking and inspect live lot maps and numbered slot layouts.
-- Reserve a space from the limited reservable pool. A reservation holds the selected space for up to 15 minutes while the citizen completes the demo payment flow.
+- Reserve a space from the limited reservable pool. A reservation holds the selected space for up to 15 to 30 minutes while the citizen completes the demo payment flow.
 - Check in for a reservation or use the walk-in flow, then see the active parking session, vehicle, reservation, and receipts in the dashboard.
 - Find a parked car and review reservations and parking history.
 - See alternative lots when a location is close to full.
