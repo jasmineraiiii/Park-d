@@ -11,6 +11,7 @@ import { errorHandler } from "./errors.js";
 import { startJobs } from "./jobs/index.js";
 import { setIo } from "./realtime.js";
 import { api } from "./routes/index.js";
+import { syncLotCoordinates } from "./seed/syncCoords.js";
 
 const origins = ENV.corsOrigin === "*" ? "*" : ENV.corsOrigin.split(",").map((s) => s.trim());
 
@@ -42,6 +43,7 @@ const io = new Server(server, { cors: { origin: origins } });
 setIo(io);
 
 await connectDb();
+await syncLotCoordinates().catch((e) => console.warn("[db] could not sync lot locations:", e.message));
 startJobs();
 server.listen(ENV.port, () => console.log(`[api] Park'd API on http://localhost:${ENV.port}  (AI assistant: ${ENV.groqKey ? "Groq" : "rules fallback"})`));
 

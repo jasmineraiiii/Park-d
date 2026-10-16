@@ -63,6 +63,8 @@ const SlotSchema = new Schema({
   order: { type: Number, required: true },  // 0-based, for sorting
   kind: { type: String, enum: ["general", "reservable"], required: true },
   state: { type: String, enum: ["available", "occupied", "reserved"], default: "available", index: true },
+  reportedAt: { type: Date, default: null },   // a citizen reported an unregistered car here
+  reportNote: { type: String, default: null },
   sessionId: { type: Schema.Types.ObjectId, ref: "Session", default: null },
   reservationId: { type: String, ref: "Reservation", default: null },
   updatedAt: { type: Date, default: Date.now },

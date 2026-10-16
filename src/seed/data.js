@@ -3,24 +3,25 @@
 // placed near real Chandigarh markets and landmarks, but they are not Municipal
 // Corporation records. Replace with verified MC data before real use.
 
+// Lot coordinates verified against Google Maps (Oct 2026). Capacities, fees and hours are demo values.
 export const LOTS = [
-  { id: "s17-ml", name: "Sector 17 Multi-Level Parking", sector: "17", address: "Near Sector 17 bus stand, Sector 17-C", lat: 30.7378, lng: 76.7836, capacity: 96, opensAt: 0, closesAt: 24, tags: ["multi-level", "market", "covered"], popular: true },
-  { id: "s17-plaza", name: "Sector 17 Plaza Parking", sector: "17", address: "Behind Plaza shops, Sector 17-E", lat: 30.7413, lng: 76.7791, capacity: 72, opensAt: 8, closesAt: 23, tags: ["market", "surface"], popular: true },
-  { id: "s17-neelam", name: "Neelam Cinema Parking", sector: "17", address: "Near Neelam Cinema, Sector 17-D", lat: 30.7392, lng: 76.7808, capacity: 40, opensAt: 9, closesAt: 23, tags: ["market", "surface"] },
-  { id: "s22-shastri", name: "Shastri Market Parking", sector: "22", address: "Shastri Market, Sector 22-B", lat: 30.7338, lng: 76.7737, capacity: 60, opensAt: 9, closesAt: 22, tags: ["market", "surface"], popular: true },
-  { id: "s22-kiran", name: "Sector 22-D Market Parking", sector: "22", address: "Near Kiran Cinema, Sector 22-D", lat: 30.7322, lng: 76.7762, capacity: 40, opensAt: 9, closesAt: 22, tags: ["market", "surface"] },
-  { id: "s35-c", name: "Sector 35-C Market Parking", sector: "35", address: "Inner market, Sector 35-C", lat: 30.7236, lng: 76.7601, capacity: 64, opensAt: 9, closesAt: 23, tags: ["market", "food"], popular: true },
-  { id: "s34-piccadily", name: "Piccadily Square Parking", sector: "34", address: "Piccadily Square, Sector 34-A", lat: 30.7229, lng: 76.7694, capacity: 48, opensAt: 10, closesAt: 23, tags: ["market", "cinema"] },
-  { id: "s8-inner", name: "Sector 8 Inner Market Parking", sector: "8", address: "Inner market, Sector 8-B", lat: 30.7443, lng: 76.7973, capacity: 36, opensAt: 9, closesAt: 22, tags: ["market", "food"], popular: true },
-  { id: "s9-market", name: "Sector 9 Market Parking", sector: "9", address: "Sector 9-D market", lat: 30.7484, lng: 76.7884, capacity: 40, opensAt: 9, closesAt: 21, tags: ["market"] },
-  { id: "s7-market", name: "Sector 7 Market Parking", sector: "7", address: "Sector 7-C market", lat: 30.7398, lng: 76.8044, capacity: 32, opensAt: 9, closesAt: 22, tags: ["market", "food"] },
-  { id: "s11-market", name: "Sector 11 Market Parking", sector: "11", address: "Sector 11-D market", lat: 30.7574, lng: 76.7742, capacity: 30, opensAt: 9, closesAt: 21, tags: ["market"] },
-  { id: "s43-isbt", name: "ISBT Sector 43 Parking", sector: "43", address: "Inter State Bus Terminal, Sector 43", lat: 30.7187, lng: 76.7426, capacity: 80, opensAt: 0, closesAt: 24, tags: ["transit", "24 hours"] },
-  { id: "elante-p1", name: "Elante Mall Area Parking", sector: "Industrial Area Ph I", address: "Purv Marg, Industrial Area Phase I", lat: 30.7057, lng: 76.8012, capacity: 100, opensAt: 10, closesAt: 23, tags: ["mall", "covered"], popular: true, feeInr: 30 },
-  { id: "sukhna", name: "Sukhna Lake Parking", sector: "1", address: "Sukhna Lake entrance, Sector 1", lat: 30.7426, lng: 76.8159, capacity: 80, opensAt: 5, closesAt: 22, tags: ["tourist", "surface"] },
-  { id: "rock-garden", name: "Rock Garden Parking", sector: "1", address: "Uttar Marg, near Rock Garden, Sector 1", lat: 30.7521, lng: 76.8074, capacity: 60, opensAt: 9, closesAt: 19, tags: ["tourist", "surface"] },
-  { id: "rose-garden", name: "Rose Garden Parking", sector: "16", address: "Zakir Hussain Rose Garden, Sector 16", lat: 30.7466, lng: 76.7817, capacity: 40, opensAt: 6, closesAt: 21, tags: ["tourist", "surface"] },
-  { id: "pgi", name: "PGIMER Visitor Parking", sector: "12", address: "PGIMER, Sector 12", lat: 30.7651, lng: 76.7757, capacity: 90, opensAt: 0, closesAt: 24, tags: ["hospital", "24 hours"], feeInr: 10 },
+  { id: "s17-ml", name: "Sector 17 Multi-Level Parking", sector: "17", address: "Bridge Market, Sector 17-D", lat: 30.741842, lng: 76.78134, capacity: 96, opensAt: 0, closesAt: 24, tags: ["multi-level", "market", "covered"], popular: true },
+  { id: "s17-plaza", name: "Sector 17 Plaza Parking", sector: "17", address: "Plaza parking, Shopping Plaza, Sector 17-C", lat: 30.738798, lng: 76.783086, capacity: 72, opensAt: 8, closesAt: 23, tags: ["market", "surface"], popular: true },
+  { id: "s17-neelam", name: "Neelam Cinema Parking", sector: "17", address: "Near Neelam Cinema, Sector 17-D", lat: 30.739671, lng: 76.780755, capacity: 40, opensAt: 9, closesAt: 23, tags: ["market", "surface"] },
+  { id: "s22-shastri", name: "Shastri Market Parking", sector: "22", address: "Shastri Market, Sector 22-B", lat: 30.73386, lng: 76.773887, capacity: 60, opensAt: 9, closesAt: 22, tags: ["market", "surface"], popular: true },
+  { id: "s22-kiran", name: "Sector 22-D Market Parking", sector: "22", address: "Near Kiran Cinema, Sector 22 market", lat: 30.730956, lng: 76.773247, capacity: 40, opensAt: 9, closesAt: 22, tags: ["market", "surface"] },
+  { id: "s35-c", name: "Sector 35-C Market Parking", sector: "35", address: "Inner market, Sector 35-C", lat: 30.724594, lng: 76.759802, capacity: 64, opensAt: 9, closesAt: 23, tags: ["market", "food"], popular: true },
+  { id: "s34-piccadily", name: "Piccadily Square Parking", sector: "34", address: "Piccadily Square, Sector 34-A", lat: 30.723376, lng: 76.767646, capacity: 48, opensAt: 10, closesAt: 23, tags: ["market", "cinema"] },
+  { id: "s8-inner", name: "Sector 8 Inner Market Parking", sector: "8", address: "Sector 8 market, Sector 8-B", lat: 30.740839, lng: 76.799288, capacity: 36, opensAt: 9, closesAt: 22, tags: ["market", "food"], popular: true },
+  { id: "s9-market", name: "Sector 9 Market Parking", sector: "9", address: "Sector 9-D market", lat: 30.74675, lng: 76.793945, capacity: 40, opensAt: 9, closesAt: 21, tags: ["market"] },
+  { id: "s7-market", name: "Sector 7 Market Parking", sector: "7", address: "Sector 7-C market, Madhya Marg", lat: 30.73374, lng: 76.79822, capacity: 32, opensAt: 9, closesAt: 22, tags: ["market", "food"] },
+  { id: "s11-market", name: "Sector 11 Market Parking", sector: "11", address: "Medical Market, Sector 11-D", lat: 30.759942, lng: 76.782487, capacity: 30, opensAt: 9, closesAt: 21, tags: ["market"] },
+  { id: "s43-isbt", name: "ISBT Sector 43 Parking", sector: "43", address: "Inter State Bus Terminal, Sector 43", lat: 30.716731, lng: 76.742992, capacity: 80, opensAt: 0, closesAt: 24, tags: ["transit", "24 hours"] },
+  { id: "elante-p1", name: "Elante Mall Area Parking", sector: "Industrial Area Ph I", address: "Purv Marg, Industrial Area Phase I", lat: 30.706815, lng: 76.800311, capacity: 100, opensAt: 10, closesAt: 23, tags: ["mall", "covered"], popular: true, feeInr: 30 },
+  { id: "sukhna", name: "Sukhna Lake Parking", sector: "1", address: "Sukhna Lake car parking, Sector 5", lat: 30.745112, lng: 76.809384, capacity: 80, opensAt: 5, closesAt: 22, tags: ["tourist", "surface"] },
+  { id: "rock-garden", name: "Rock Garden Parking", sector: "1", address: "Uttar Marg, near Rock Garden, Sector 1", lat: 30.752896, lng: 76.803403, capacity: 60, opensAt: 9, closesAt: 19, tags: ["tourist", "surface"] },
+  { id: "rose-garden", name: "Rose Garden Parking", sector: "16", address: "Zakir Hussain Rose Garden, Sector 16", lat: 30.747571, lng: 76.784555, capacity: 40, opensAt: 6, closesAt: 21, tags: ["tourist", "surface"] },
+  { id: "pgi", name: "PGIMER Visitor Parking", sector: "12", address: "PGIMER, Sector 12", lat: 30.768243, lng: 76.776333, capacity: 90, opensAt: 0, closesAt: 24, tags: ["hospital", "24 hours"], feeInr: 10 },
 ].map((l) => ({ feeInr: 14, opensAt: 0, closesAt: 24, popular: false, ...l }));
 
 /** Typical share of each lot that is occupied; used to seed and simulate. */
@@ -32,15 +33,15 @@ export const BUSY = {
 };
 
 export const LANDMARKS = [
-  { id: "lm-elante", name: "Elante Mall", aliases: ["elante", "nexus elante", "elante mall"], lat: 30.7057, lng: 76.8012, sector: "Industrial Area Ph I" },
-  { id: "lm-sukhna", name: "Sukhna Lake", aliases: ["sukhna", "lake"], lat: 30.7421, lng: 76.8188, sector: "1" },
-  { id: "lm-rock", name: "Rock Garden", aliases: ["rock garden", "nek chand"], lat: 30.7525, lng: 76.8078, sector: "1" },
-  { id: "lm-rose", name: "Rose Garden", aliases: ["rose garden", "zakir hussain"], lat: 30.7461, lng: 76.7819, sector: "16" },
-  { id: "lm-isbt43", name: "ISBT Sector 43", aliases: ["isbt", "bus stand 43", "isbt 43"], lat: 30.7187, lng: 76.7426, sector: "43" },
-  { id: "lm-pgi", name: "PGIMER", aliases: ["pgi", "pgimer", "hospital"], lat: 30.7651, lng: 76.7757, sector: "12" },
+  { id: "lm-elante", name: "Elante Mall", aliases: ["elante", "nexus elante", "elante mall"], lat: 30.706815, lng: 76.800311, sector: "Industrial Area Ph I" },
+  { id: "lm-sukhna", name: "Sukhna Lake", aliases: ["sukhna", "lake"], lat: 30.745112, lng: 76.809384, sector: "1" },
+  { id: "lm-rock", name: "Rock Garden", aliases: ["rock garden", "nek chand"], lat: 30.752896, lng: 76.803403, sector: "1" },
+  { id: "lm-rose", name: "Rose Garden", aliases: ["rose garden", "zakir hussain"], lat: 30.747771, lng: 76.784513, sector: "16" },
+  { id: "lm-isbt43", name: "ISBT Sector 43", aliases: ["isbt", "bus stand 43", "isbt 43"], lat: 30.717167, lng: 76.743415, sector: "43" },
+  { id: "lm-pgi", name: "PGIMER", aliases: ["pgi", "pgimer", "hospital"], lat: 30.768243, lng: 76.776333, sector: "12" },
   { id: "lm-capitol", name: "Capitol Complex", aliases: ["capitol", "secretariat", "high court"], lat: 30.7589, lng: 76.8065, sector: "1" },
-  { id: "lm-plaza", name: "Sector 17 Plaza", aliases: ["plaza", "17 plaza"], lat: 30.7410, lng: 76.7790, sector: "17" },
-  { id: "lm-piccadily", name: "Piccadily Square", aliases: ["piccadily", "piccadilly"], lat: 30.7229, lng: 76.7694, sector: "34" },
+  { id: "lm-plaza", name: "Sector 17 Plaza", aliases: ["plaza", "17 plaza"], lat: 30.740549, lng: 76.782074, sector: "17" },
+  { id: "lm-piccadily", name: "Piccadily Square", aliases: ["piccadily", "piccadilly"], lat: 30.723376, lng: 76.767646, sector: "34" },
 ];
 
 /** Approximate sector centres, so a search for a sector without a lot still finds the nearest parking. */

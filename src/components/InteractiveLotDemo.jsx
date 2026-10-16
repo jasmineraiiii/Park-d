@@ -193,7 +193,7 @@ export default function InteractiveLotDemo() {
                 </span>
               </div>
               <div className="text-xs text-slate-500 mt-0.5">
-                {activeRole === 'driver' && 'Tap any green slot to reserve for 15 minutes (₹14)'}
+                {activeRole === 'driver' && 'Tap any green slot to reserve for 30 minutes (₹14)'}
                 {activeRole === 'attendant' && 'Tap any slot to toggle car entry or exit'}
                 {activeRole === 'mc' && 'Live sensorless occupancy feed from attendants'}
               </div>
@@ -275,7 +275,7 @@ export default function InteractiveLotDemo() {
                   Citizen Experience
                 </span>
                 <span className="text-[11px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 font-semibold">
-                  15-Min Lock
+                  30-Min Lock
                 </span>
               </div>
 
@@ -333,7 +333,7 @@ export default function InteractiveLotDemo() {
                     </span>
                   </div>
                   <p className="text-[11px] text-amber-700">
-                    Slot holds for 15 minutes. Automatically released if you don't arrive.
+                    Slot holds for 30 minutes. Automatically released if you don't arrive.
                   </p>
                 </div>
               )}

@@ -380,6 +380,50 @@ const newDriver = async (n) => (await call("POST", "/auth/driver", { name: `Smok
     check("demo host has a web login", (await call("POST", "/auth/login", { email: "host1@demo.parkd", password: "parkd-demo" })).status === 200);
   }
 
+  console.log("\nSlot taken reports, arrival forecast, 30-minute holds");
+  {
+    const lotsNow = (await call("GET", "/lots")).data.lots;
+    const lot = lotsNow.find((l) => l.stats?.open && l.stats.reservableFree >= 2 && l.kind !== "temporary");
+    const walk = lotsNow.find((l) => l.stats?.open && l.stats.available - l.stats.reservableFree >= 2 && l.kind !== "temporary");
+    const reg = async (n) => (await call("POST", "/auth/register", { name: n, email: `${n.replace(/\W/g, "")}${Date.now()}@example.com`, password: "parkd-smoke-1" })).data.token;
+    if (lot) {
+      const t = await reg("Report One");
+      const r = (await call("POST", "/reservations", { lotId: lot._id }, t)).data.reservation;
+      const mins = (new Date(r.expiresAt) - new Date(r.createdAt)) / 60000;
+      check("reservation hold lasts 30 minutes", Math.round(mins) === 30, `${mins} min`);
+      const repRes = await call("POST", "/me/report-slot-taken", {}, t);
+      check("reserved bays can't be reported (kept clear)", repRes.status === 409 && /kept clear/.test(repRes.data.message));
+      await call("POST", `/reservations/${r._id}/cancel`, {}, t);
+    } else check("found an open lot with reservable slots for report test", false);
+    if (walk) {
+      const t2 = await reg("Report Two");
+      const ses = (await call("POST", `/lots/${walk._id}/check-in`, {}, t2)).data.session;
+      const rep2 = await call("POST", "/me/report-slot-taken", {}, t2);
+      check("walk-in can report their assigned bay as taken", rep2.status === 200 && rep2.data.kind === "session" && rep2.data.moved === true);
+      check("walk-in is moved to a different walk-in bay", rep2.data.slotNumber && rep2.data.slotNumber !== ses.slotNumber);
+      const act2 = (await call("GET", "/me/activity", null, t2)).data;
+      check("session now points at the new bay", act2.activeSession?.slotNumber === rep2.data.slotNumber);
+      const lotAfter = (await call("GET", `/lots/${walk._id}`)).data;
+      const newSlot = lotAfter.slots.find((x) => x.number === rep2.data.slotNumber);
+      const oldSlot = lotAfter.slots.find((x) => x.number === ses.slotNumber);
+      check("new bay is a walk-in bay (reserved block untouched)", newSlot?.kind === "general");
+      check("reported bay is marked occupied and flagged", oldSlot?.state === "occupied" && Boolean(oldSlot?.reportedAt));
+      check("lot attendants (or MC) were alerted", rep2.data.alertedStaff >= 1);
+      const attTok = (await call("POST", "/auth/attendant", { username: "att-17", pin: "1717" })).data.token;
+      const adminTok = (await call("POST", "/auth/admin", { username: "mc-admin", pin: "2026" })).data.token;
+      const alerts = [...((await call("GET", "/notifications", null, attTok)).data?.items ?? []), ...((await call("GET", "/notifications", null, adminTok)).data?.items ?? [])];
+      check("alert appears in staff notifications", alerts.some((n) => n.type === "slot-report" && n.title.includes(ses.slotNumber)));
+      await call("POST", `/sessions/${ses._id}/pay`, { upiApp: "Google Pay" }, t2);
+      await call("POST", `/sessions/${ses._id}/end`, {}, t2);
+    }
+    const t3 = await reg("Report Three");
+    check("report without a booking is refused", (await call("POST", "/me/report-slot-taken", {}, t3)).status === 409);
+    const fc = await call("GET", `/lots/${(lot || lotsNow[0])._id}/forecast?lat=30.7333&lng=76.7794`);
+    check("forecast returns ETA and predicted free spaces", fc.status === 200 && fc.data.etaMin > 0 && Number.isInteger(fc.data.predictedFree), JSON.stringify(fc.data).slice(0, 140));
+    check("forecast gives a verdict", ["likely", "tight", "unlikely", "closing"].includes(fc.data.verdict));
+    check("forecast for unknown lot is 404", (await call("GET", "/lots/nope/forecast")).status === 404);
+  }
+
   check("live 'lot:update' events received", updates.length > 0, `got ${updates.length}`);
   sock.close();
 

@@ -13,6 +13,7 @@ import { Lot, Payment, Reservation, Session, Slot, User } from "../models/index.
 import { emitSlotChange } from "../realtime.js";
 import { audit, isLotOpen, makeCode } from "./util.js";
 import { driverKey, lotKey, withLocks } from "./locks.js";
+import { notify } from "./notify.js";
 
 const { ObjectId } = mongoose.Types;
 const ACTIVE_RES = ["pending-payment", "held"];
@@ -62,7 +63,7 @@ async function driverBusyError(driverId) {
 async function freeSlot(slotId, match) {
   const slot = await Slot.findOneAndUpdate(
     { _id: slotId, ...match },
-    { $set: { state: "available", sessionId: null, reservationId: null, updatedAt: new Date() } },
+    { $set: { state: "available", sessionId: null, reservationId: null, reportedAt: null, reportNote: null, updatedAt: new Date() } },
     { new: true },
   );
   if (slot) emitSlotChange(slot);
@@ -73,7 +74,7 @@ async function freeSlot(slotId, match) {
    RESERVATIONS
    ===================================================================== */
 
-/** Step 1: hold a reservable slot for 15 minutes. The 10% cap holds because only "reservable" slots can be claimed. */
+/** Step 1: hold a reservable slot for RULES.holdMinutes (30) minutes. The 10% cap holds because only "reservable" slots can be claimed. */
 async function _createReservation(driver, { lotId, slotId }) {
   const lot = await getLot(lotId);
   if (!isLotOpen(lot)) fail("lot-closed", `${lot.name} is closed right now.`);
@@ -210,7 +211,7 @@ async function _checkInReservation(actor, reservationId) {
   return session.toObject();
 }
 
-/** Runs every minute: releases holds whose 15 minutes are up. */
+/** Runs every minute: releases holds whose 30 minutes are up. */
 export async function expireReservations(now = new Date()) {
   const due = await Reservation.find({ status: { $in: ACTIVE_RES }, expiresAt: { $lte: now } }).limit(500).lean();
   let n = 0;
@@ -394,6 +395,111 @@ async function _attendantCorrect(att, slotId, reason) {
   else await freeSlot(slot._id, { state: "occupied" });
   audit(att, "slot.correct", `Assignment at ${slot.number} voided: ${reason.trim()}${session?.paymentId ? " (payment kept on record)" : ""}`, slot.lotId, slot.number);
   return { ok: true };
+}
+
+/* =====================================================================
+   CITIZEN REPORT: "someone is already parked in my (walk-in) bay"
+   The worker may not have recorded a car yet. The citizen's bay is marked
+   occupied (so nobody else is sent there), they are moved to the next free
+   slot in the same lot, and the lot's attendants get an alert to check.
+   ===================================================================== */
+
+async function _reportSlotTaken(driver, kind, doc) {
+  const lot = await getLot(doc.lotId);
+  const now = new Date();
+  const oldSlotId = doc.slotId, oldNumber = doc.slotNumber;
+
+  const flagged = await Slot.findOneAndUpdate(
+    { _id: oldSlotId },
+    { $set: { state: "occupied", sessionId: null, reservationId: null, reportedAt: now,
+      reportNote: `Citizen found an unregistered car here (${kind === "reservation" ? `reserved for ${doc._id}` : "assigned to a walk-in"})`, updatedAt: now } },
+    { new: true },
+  );
+  if (flagged) emitSlotChange(flagged);
+
+  // Next free slot in the same lot: bookings may use any free slot as a remedy.
+  let slot = null;
+  for (const k of kind === "reservation" ? ["reservable", "general"] : ["general"]) {
+    slot = await Slot.findOneAndUpdate(
+      { lotId: doc.lotId, kind: k, state: "available" },
+      { $set: kind === "reservation" ? { state: "reserved", reservationId: doc._id, updatedAt: now } : { state: "occupied", sessionId: doc._id, updatedAt: now } },
+      { new: true, sort: { order: 1 } },
+    );
+    if (slot) break;
+  }
+
+  if (slot) {
+    await (kind === "reservation" ? Reservation : Session).updateOne({ _id: doc._id }, { $set: { slotId: slot._id, slotNumber: slot.number } });
+    emitSlotChange(slot);
+  } else if (kind === "reservation") {
+    await Reservation.updateOne({ _id: doc._id }, { $set: { status: "cancelled" } });
+    await User.updateOne({ _id: driver._id, activeReservationId: doc._id }, { $set: { activeReservationId: null } });
+  } else {
+    await Session.updateOne({ _id: doc._id }, { $set: { status: "voided", endedAt: now } });
+    await User.updateOne({ _id: driver._id, activeSessionId: doc._id }, { $set: { activeSessionId: null } });
+  }
+  const refundDue = !slot && Boolean(doc.paymentId);
+  audit(driver, "slot.reported", `Citizen reported ${oldNumber} occupied; ${slot ? `moved to ${slot.number}` : `no free slot, ${kind} released${refundDue ? " (fee to refund)" : ""}`}`, doc.lotId, oldNumber);
+
+  // Alert the lot's attendants (or the MC if nobody is assigned to this lot).
+  let staff = await User.find({ role: "attendant", assignedLotIds: doc.lotId }, { _id: 1 }).lean();
+  if (!staff.length) staff = await User.find({ role: "admin" }, { _id: 1 }).lean();
+  await Promise.all(staff.map((u) => notify(u._id, {
+    type: "slot-report",
+    title: `Check bay ${oldNumber} · ${lot.name}`,
+    body: `A citizen found an unregistered car in ${oldNumber}${slot ? ` and was moved to ${slot.number}` : " and was sent to another lot"}. Record the car, or free the bay if it has left.`,
+    link: `/worker?slot=${encodeURIComponent(oldSlotId)}`,
+    key: `slot-report:${oldSlotId}:${now.getTime()}`,
+  }).catch(() => null)));
+
+  return { moved: Boolean(slot), kind, lotId: doc.lotId, lotName: lot.name, oldSlotNumber: oldNumber, slotNumber: slot?.number ?? null, slotId: slot?._id ?? null, refundDue, alertedStaff: staff.length };
+}
+
+export async function reportSlotTaken(driver) {
+  const u = await User.findById(driver._id, { activeReservationId: 1, activeSessionId: 1 }).lean();
+  // Reserved bays sit together in a block that is kept clear for bookings, so only
+  // walk-in (general) bays can be reported.
+  const kind = "session";
+  const doc = u?.activeSessionId ? await Session.findOne({ _id: u.activeSessionId, status: "active" }).lean() : null;
+  if (!doc) {
+    if (u?.activeReservationId) fail("invalid-state", "Reserved bays are kept clear for bookings. If anything is wrong at your bay, the attendant at the gate will sort it out.");
+    fail("invalid-state", "You don't have a walk-in bay assigned right now.");
+  }
+  return withLocks([driverKey(driver._id), lotKey(doc.lotId)], async () => {
+    const fresh = await (kind === "reservation" ? Reservation : Session).findById(doc._id).lean();
+    if (!fresh || !["pending-payment", "held", "active"].includes(fresh.status)) fail("invalid-state", "That booking is no longer active.");
+    return _reportSlotTaken(driver, kind, fresh);
+  });
+}
+
+/* =====================================================================
+   ARRIVAL FORECAST: will there be a free space when you get there?
+   Trend from the last hour of arrivals, departures and new holds at the lot,
+   projected over the travel time. An estimate, not a guarantee.
+   ===================================================================== */
+
+export async function forecastLot(lotId, { distanceKm = null, etaMin = null } = {}) {
+  const lot = await getLot(lotId);
+  const { lotStats } = await import("./stats.js");
+  const stats = await lotStats(lotId);
+  // City driving: ~22 km/h average incl. signals, roads ~35% longer than straight-line, +2 min to park.
+  const eta = Number.isFinite(etaMin) ? Math.max(1, Math.round(etaMin))
+    : Number.isFinite(distanceKm) ? Math.max(2, Math.round((distanceKm * 1.35 / 22) * 60 + 2)) : 15;
+  const since = new Date(Date.now() - 60 * 60000);
+  const [entries, exits, holds] = await Promise.all([
+    Session.countDocuments({ lotId, startedAt: { $gte: since } }),
+    Session.countDocuments({ lotId, endedAt: { $gte: since } }),
+    Reservation.countDocuments({ lotId, createdAt: { $gte: since }, status: { $in: ["pending-payment", "held"] } }),
+  ]);
+  const netPerHour = exits - entries - holds;
+  const predictedFree = Math.max(0, Math.min(lot.capacity, Math.round(stats.available + (netPerHour * eta) / 60)));
+  const openOnArrival = isLotOpen(lot, new Date(Date.now() + eta * 60000));
+  const verdict = !openOnArrival ? "closing" : predictedFree >= 5 ? "likely" : predictedFree >= 1 ? "tight" : "unlikely";
+  return {
+    lotId, lotName: lot.name, etaMin: eta, distanceKm: Number.isFinite(distanceKm) ? Math.round(distanceKm * 100) / 100 : null,
+    availableNow: stats.available, reservableFree: stats.reservableFree, predictedFree, netPerHour, verdict,
+    basis: "Last hour of arrivals, departures and holds at this lot, projected over your travel time.",
+  };
 }
 
 /* =====================================================================

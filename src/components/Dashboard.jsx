@@ -48,6 +48,7 @@ import DriverHost from './dash/DriverHost';
 import AdminFestival from './dash/AdminFestival';
 import AdminNeighbourhood from './dash/AdminNeighbourhood';
 import { Btn, ErrorNote, Field, inputCls, Loading, Modal, Pill } from './dash/ui';
+import VoiceAssistant from './VoiceAssistant';
 
 /* ──────────────────────────────────────────────────────────────────────────
    SIDEBAR DEFINITIONS (per role)
@@ -185,6 +186,11 @@ export default function Dashboard({ user, onLogout }) {
         </div>
       )}
 
+      {role === 'driver' && <RedirectHost />}
+
+      {/* ── Voice assistant (citizens): greets right after login ── */}
+      {role === 'driver' && <VoiceAssistant userName={userName} onChanged={() => activity.reload()} showToast={showToast} />}
+
       {/* ── Top Nav Bar ── */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-sky-100 shadow-xs">
         <div className="px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -204,9 +210,7 @@ export default function Dashboard({ user, onLogout }) {
             </button>
 
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-600 to-sky-400 flex items-center justify-center text-white font-black text-base shadow-xs">
-                P
-              </div>
+              <img src="/brand/parkd-logo-192.png" alt="Park'd" width="40" height="40" className="w-10 h-10 rounded-xl shadow-xs ring-1 ring-slate-200/70" />
               <div className="hidden sm:block">
                 <span className="text-base font-extrabold text-slate-900 tracking-tight">Park'd</span>
                 <span className="text-[9px] font-mono font-bold tracking-widest uppercase text-sky-600 block -mt-1">{roleSub}</span>
@@ -367,9 +371,9 @@ export default function Dashboard({ user, onLogout }) {
 
           {sidebarTab === 'home' && role === 'driver' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              {res ? <StatCard label="Active 15-Min Reservation" value={`${duration(new Date(res.expiresAt) - Date.now())} left`} sub={`${lotName(res.lotId)} · Slot ${res.slotNumber}`} Icon={Clock} accent />
+              {res ? <StatCard label="Active 30-Min Reservation" value={<><Countdown to={res.expiresAt} /> <span className="text-sm font-bold text-slate-400">left</span></>} sub={`${lotName(res.lotId)} · Slot ${res.slotNumber}`} Icon={Clock} accent />
                 : ses ? <StatCard label="Parked Right Now" value={`Slot ${ses.slotNumber}`} sub={`${lotName(ses.lotId)} · since ${time(ses.startedAt)}`} Icon={Clock} accent />
-                : <StatCard label="Active 15-Min Reservation" value="None" sub="Reserve a slot from Explore" Icon={Clock} />}
+                : <StatCard label="Active 30-Min Reservation" value="None" sub="Reserve a slot from Explore" Icon={Clock} />}
               <StatCard label="Paid via Park'd"            value={inr(paidTotal)} sub={`${act?.payments?.length ?? 0} receipts · demo UPI`} Icon={Wallet} />
               <StatCard label="Total Trips Parked"        value={`${act?.sessions?.length ?? 0} Trips`} sub={`Across ${new Set((act?.sessions ?? []).map((s) => s.lotId)).size} lots`} Icon={Car} />
               <StatCard label="Neighbourhood Bookings"    value={nbBookings.data?.bookings?.length ?? 0} sub={`${(nbBookings.data?.bookings ?? []).filter((b) => b.status === 'confirmed').length} upcoming`} subGreen Icon={House} />
@@ -460,6 +464,66 @@ export default function Dashboard({ user, onLogout }) {
 /* ──────────────────────────────────────────────────────────────────────────
    SHARED STAT CARD
 ────────────────────────────────────────────────────────────────────────── */
+/** Live mm:ss countdown to a hold's expiry (ticks every second). */
+function Countdown({ to, className = '' }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  const ms = new Date(to).getTime() - now;
+  if (!(ms > 0)) return <span className={className}>expired</span>;
+  const m = Math.floor(ms / 60000), sec = Math.floor((ms % 60000) / 1000);
+  return <span className={`tabular-nums ${ms < 5 * 60000 ? 'text-amber-500' : ''} ${className}`}>{String(m).padStart(2, '0')}:{String(sec).padStart(2, '0')}</span>;
+}
+
+/** "Someone is already parked in my bay" (walk-ins): the worker is notified and the citizen is
+ *  redirected to the next free bay, or to the nearest lot with space if this one is full. */
+async function reportSlotTaken(showToast) {
+  const r = await api('POST', '/me/report-slot-taken');
+  if (r.moved) {
+    showToast(`We've notified the worker at ${r.lotName} to check ${r.oldSlotNumber}. Your new bay is ${r.slotNumber}.`);
+    return r;
+  }
+  let alt = null;
+  try { const a = await api('GET', `/lots/${encodeURIComponent(r.lotId)}/alternatives`); alt = a.suggestions?.find((x) => x.stats?.available > 0) ?? null; } catch { /* ignore */ }
+  showToast(`We've notified the worker at ${r.lotName}. It has no other free bay${alt ? `, so we're sending you to ${alt.name}` : ''}.`);
+  window.dispatchEvent(new CustomEvent('parkd:redirect', { detail: { ...r, alt } }));
+  return { ...r, alt };
+}
+
+/** Shown when the lot is full after a report: one tap to drive to the nearest lot with space. */
+function RedirectCard({ result, onClose }) {
+  const alt = result?.alt;
+  return (
+    <Modal title="Worker notified" sub={`${result.lotName} has no other free bay`} onClose={onClose}>
+      <div className="space-y-3 text-xs">
+        <p className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-semibold">✓ We've told the worker at {result.lotName} about the car in {result.oldSlotNumber}.</p>
+        {alt ? (
+          <>
+            <p className="text-slate-600">Nearest lot with space:</p>
+            <div className="p-3 rounded-xl border border-slate-200">
+              <p className="text-sm font-black text-slate-900">{alt.name}</p>
+              <p className="text-slate-500">{alt.distanceKm} km away · {alt.stats.available} free · {inr(alt.feeInr)}</p>
+            </div>
+            <a href={directionsUrl(alt.lat, alt.lng, 'driving')} target="_blank" rel="noreferrer" className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-full bg-sky-600 text-white text-xs font-bold">
+              <Navigation className="w-4 h-4" /> Navigate to {alt.name}
+            </a>
+          </>
+        ) : <p className="text-slate-600">No nearby lot has space right now. Try Explore for other areas.</p>}
+      </div>
+    </Modal>
+  );
+}
+
+/** Always mounted, so the redirect survives the booking card disappearing. */
+function RedirectHost() {
+  const [result, setResult] = useState(null);
+  useEffect(() => {
+    const on = (e) => setResult(e.detail);
+    window.addEventListener('parkd:redirect', on);
+    return () => window.removeEventListener('parkd:redirect', on);
+  }, []);
+  return result ? <RedirectCard result={result} onClose={() => setResult(null)} /> : null;
+}
+
 function StatCard({ label, value, sub, Icon, subGreen, accent }) {
   return (
     <div className="p-5 rounded-2xl bg-white border border-sky-100 shadow-xs">
@@ -484,8 +548,13 @@ function exportReceipts(payments, lotName) {
 /* Active reservation / parked-car actions, shared by Home and Reservations */
 function ActiveParkingActions({ activity, showToast, tone = 'light' }) {
   const [busy, setBusy] = useState(null);
+  const [guide, setGuide] = useState(false);
+  const reportWalkIn = () => run('taken', async () => {
+    const res = await reportSlotTaken(showToast);
+    if (res.moved) setGuide(true);
+  }, null);
   const r = activity.data?.activeReservation, s = activity.data?.activeSession;
-  const run = async (key, fn, msg) => { setBusy(key); try { await fn(); showToast(msg); await activity.reload(); } catch (e) { showToast(e.message); } finally { setBusy(null); } };
+  const run = async (key, fn, msg) => { setBusy(key); try { await fn(); if (msg) showToast(msg); await activity.reload(); } catch (e) { showToast(e.message); } finally { setBusy(null); } };
   const cls = tone === 'light' ? 'bg-white text-sky-800 hover:bg-sky-50' : 'bg-sky-600 text-white hover:bg-sky-500';
   const btn = `px-4 py-2 rounded-full font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-50 ${cls}`;
   if (r) return (
@@ -493,16 +562,279 @@ function ActiveParkingActions({ activity, showToast, tone = 'light' }) {
       {r.status === 'pending-payment'
         ? UPI_APPS.map((a) => <button key={a} type="button" disabled={!!busy} className={btn} onClick={() => run(a, () => api('POST', `/reservations/${r._id}/pay`, { upiApp: a }), 'Paid (demo UPI). Slot held.')}>Pay {inr(r.feeInr)} · {a}</button>)
         : <button type="button" disabled={!!busy} className={btn} onClick={() => run('in', () => api('POST', `/reservations/${r._id}/check-in`), 'Checked in. Your car is saved.')}>I've arrived · check in</button>}
+      {r.status === 'held' && <button type="button" className={btn} onClick={() => setGuide(true)}>Where is {r.slotNumber}?</button>}
       <button type="button" disabled={!!busy} className={`${btn} !bg-transparent border border-current`} onClick={() => run('x', () => api('POST', `/reservations/${r._id}/cancel`), 'Reservation cancelled')}>Cancel</button>
+      {guide && <SlotGuide lotId={r.lotId} slotNumber={r.slotNumber} showToast={showToast} onClose={() => setGuide(false)} />}
     </div>
   );
   if (s) return (
     <div className="flex flex-wrap gap-2">
+      <button type="button" className={btn} onClick={() => setGuide(true)}>Find slot {s.slotNumber}</button>
+      <button type="button" disabled={!!busy} className={`${btn} !bg-amber-300 !text-amber-950 hover:!bg-amber-200`} onClick={reportWalkIn}>Someone's in my slot</button>
       {!s.paymentId && <button type="button" disabled={!!busy} className={btn} onClick={() => run('pay', () => api('POST', `/sessions/${s._id}/pay`, { upiApp: 'Google Pay' }), 'Paid (demo UPI)')}>Pay {inr(s.feeInr)} with UPI</button>}
       <button type="button" disabled={!!busy || !s.paymentId} className={btn} onClick={() => run('end', () => api('POST', `/sessions/${s._id}/end`), 'Slot freed. Drive safe.')}>I've left the lot</button>
+      {guide && <SlotGuide lotId={s.lotId} key={s.slotNumber} slotNumber={s.slotNumber} sessionId={s._id} paid={!!s.paymentId} showToast={showToast} onPaid={() => activity.reload()} onClose={() => setGuide(false)} />}
     </div>
   );
   return null;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   WALK-IN GUIDANCE: nearest lot now + where is my slot
+   Bays are numbered from the entrance (the server hands out the lowest free
+   number first), so a slot's position in that order tells the driver which
+   row and bay to look for.
+────────────────────────────────────────────────────────────────────────── */
+const BAYS_PER_ROW = 10;
+const CITY_CENTRE = { lat: 30.7398, lng: 76.7827, label: 'Sector 17 (your location was not available)' };
+
+function bayPosition(slots, slotNumber) {
+  const ordered = [...slots].sort((a, b) => a.order - b.order);
+  const i = ordered.findIndex((x) => x.number === slotNumber);
+  if (i < 0) return null;
+  return { index: i, row: Math.floor(i / BAYS_PER_ROW), bay: (i % BAYS_PER_ROW) + 1, ordered };
+}
+const rowName = (r) => String.fromCharCode(65 + (r % 26)) + (r >= 26 ? Math.floor(r / 26) : '');
+// Estimated GPS point of a bay: rows run away from the lot's entrance point
+// (6 m per row incl. aisle share), bays sit side by side (2.6 m each).
+// Real lots would store surveyed coordinates per slot instead.
+const ROW_PITCH_M = 6, BAY_WIDTH_M = 2.6;
+function bayLatLng(lot, pos) {
+  if (!lot || !pos) return null;
+  const north = (pos.row + 0.5) * ROW_PITCH_M, east = (pos.bay - 0.5) * BAY_WIDTH_M;
+  const lat = lot.lat + north / 111320;
+  const lng = lot.lng + east / (111320 * Math.cos((lot.lat * Math.PI) / 180));
+  return { lat: Math.round(lat * 1e6) / 1e6, lng: Math.round(lng * 1e6) / 1e6 };
+}
+const isMultiLevel = (lot) => /multi[- ]?level|basement|underground|covered/i.test(`${lot?.name ?? ''} ${lot?.description ?? ''}`);
+
+const ordinal = (n) => `${n}${[, 'st', 'nd', 'rd'][n % 100 >> 3 ^ 1 && n % 10] || 'th'}`;
+
+/** "Where is P39?": directions to the lot, a mini bay map, and (if unpaid) the fee. */
+function SlotGuide({ lotId, slotNumber: initialSlot, sessionId, paid, onPaid, onClose, showToast }) {
+  const [slotNumber, setSlotNumber] = useState(initialSlot);
+  const [reporting, setReporting] = useState(false);
+  const d = useLoad(() => api('GET', `/lots/${encodeURIComponent(lotId)}`), [lotId, slotNumber]);
+  const reportTaken = async () => {
+    setReporting(true);
+    try { const r = await reportSlotTaken((m) => showToast?.(m)); onPaid?.(); if (r.moved) setSlotNumber(r.slotNumber); else onClose?.(); }
+    catch (e) { showToast?.(e.message); }
+    finally { setReporting(false); }
+  };
+  const [busy, setBusy] = useState(null);
+  const [isPaid, setIsPaid] = useState(Boolean(paid));
+  const lot = d.data?.lot;
+  const pos = d.data ? bayPosition(d.data.slots ?? [], slotNumber) : null;
+  const rows = pos ? Math.ceil(pos.ordered.length / BAYS_PER_ROW) : 0;
+  const [fullMap, setFullMap] = useState(false);
+  // Compact view: the target row with one row either side, so the bay is visible straight away.
+  const firstRow = fullMap || !pos ? 0 : Math.max(0, pos.row - 1);
+  const lastRow = fullMap || !pos ? rows - 1 : Math.min(rows - 1, pos.row + 1);
+  const bay = bayLatLng(lot, pos);
+
+  const pay = async (app) => {
+    setBusy(app);
+    try { await api('POST', `/sessions/${sessionId}/pay`, { upiApp: app }); setIsPaid(true); showToast?.(`Paid ${inr(lot?.feeInr)} (demo UPI)`); onPaid?.(); }
+    catch (e) { showToast?.(e.message); }
+    finally { setBusy(null); }
+  };
+
+  return createPortal(
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-sm p-0 sm:p-4" onClick={onClose}>
+      <div className="w-full sm:max-w-lg max-h-[94vh] overflow-y-auto bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="px-6 pt-5 pb-4 bg-gradient-to-br from-sky-600 to-sky-500 text-white rounded-t-3xl">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-sky-100">Your slot</p>
+              <p className="text-5xl font-black leading-none mt-1 font-mono">{slotNumber}</p>
+              <p className="text-sm font-semibold mt-2">{lot?.name ?? 'Loading…'}</p>
+              {pos && <p className="text-xs text-sky-100 mt-0.5">Row {rowName(pos.row)} · {ordinal(pos.bay)} bay from the entrance</p>}
+            </div>
+            <button type="button" onClick={onClose} className="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-sm font-bold" aria-label="Close">✕</button>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-5">
+          <ErrorNote error={d.error} onRetry={d.reload} />
+
+          {/* Where is the bay: shown straight away, with two ways to get there */}
+          {d.loading && !pos ? <Loading /> : pos ? (
+            <div>
+              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 overflow-x-auto">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-700"><span className="px-2 py-0.5 rounded bg-emerald-100 border border-emerald-300">ENTRANCE</span>→</span>
+                  {rows > 3 && (
+                    <button type="button" onClick={() => setFullMap((v) => !v)} className="text-[10px] font-bold text-sky-700 hover:underline">
+                      {fullMap ? 'Show my row only' : `Show whole lot (${rows} rows)`}
+                    </button>
+                  )}
+                </div>
+                {!fullMap && firstRow > 0 && <p className="text-[10px] text-slate-400 font-mono mb-1 pl-6">⋮ rows A–{rowName(firstRow - 1)} ({firstRow} row{firstRow === 1 ? '' : 's'} nearer the entrance)</p>}
+                <div className="space-y-1 min-w-[280px]">
+                  {Array.from({ length: lastRow - firstRow + 1 }, (_, k) => firstRow + k).map((r) => (
+                    <div key={r} className="flex items-center gap-1">
+                      <span className={`w-5 text-[10px] font-mono font-bold ${r === pos.row ? 'text-sky-700' : 'text-slate-400'}`}>{rowName(r)}</span>
+                      {pos.ordered.slice(r * BAYS_PER_ROW, (r + 1) * BAYS_PER_ROW).map((b, i) => {
+                        const me = r * BAYS_PER_ROW + i === pos.index;
+                        return (
+                          <span key={b._id} title={b.number}
+                            className={`flex-1 rounded-md font-mono font-bold flex items-center justify-center border ${
+                              me ? 'h-9 text-[11px] bg-sky-600 border-sky-800 text-white ring-4 ring-sky-300/70 shadow-lg scale-110 z-10'
+                                : r === pos.row ? 'h-7 text-[8px] bg-sky-50 border-sky-200 text-sky-700' : 'h-7 text-[8px] bg-white border-slate-200 text-slate-300'}`}>
+                            {me ? `★ ${b.number}` : r === pos.row ? b.number : ''}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+                {!fullMap && lastRow < rows - 1 && <p className="text-[10px] text-slate-400 font-mono mt-1 pl-6">⋮ {rows - 1 - lastRow} more row{rows - 1 - lastRow === 1 ? '' : 's'} further in</p>}
+              </div>
+              <p className="mt-2 text-xs text-slate-600">Enter, go to <b>row {rowName(pos.row)}</b>, and count <b>{pos.bay}</b> bay{pos.bay === 1 ? '' : 's'} in. Numbers go up from the entrance.</p>
+
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <a href={directionsUrl(lot.lat, lot.lng, 'driving')} target="_blank" rel="noreferrer"
+                  className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold shadow-sm">
+                  <Car className="w-4 h-4" /> Drive to the lot
+                </a>
+                <a href={directionsUrl(bay.lat, bay.lng, 'walking')} target="_blank" rel="noreferrer"
+                  className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-2xl bg-white border-2 border-sky-200 hover:border-sky-400 text-sky-800 text-xs font-bold">
+                  <MapPin className="w-4 h-4" /> Walk to bay {slotNumber}
+                </a>
+              </div>
+              {sessionId && <button type="button" disabled={reporting} onClick={reportTaken}
+                className="mt-2 w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold hover:bg-amber-100 disabled:opacity-50">
+                <TriangleAlert className="w-4 h-4" /> {reporting ? 'Notifying the worker…' : `Someone's already parked in ${slotNumber}`}
+              </button>}
+              {!sessionId && <p className="mt-2 px-3 py-2 rounded-xl bg-sky-50 border border-sky-200 text-[11px] text-sky-900 font-semibold">Reserved bays sit together in one block that's kept clear for bookings.</p>}
+              <p className="mt-2 text-[10px] text-slate-400 leading-relaxed">
+                {lot?.address || (lot ? sectorLabel(lot.sector) : '')} · Bay pin is estimated from the bay numbering ({BAYS_PER_ROW} bays a row).
+                {isMultiLevel(lot) ? ' GPS is weak inside multi-level parking: follow the level and bay signs.' : ' Follow the numbers painted on the ground; the attendant can help too.'}
+              </p>
+            </div>
+          ) : !d.error && (
+            <div>
+              <p className="text-xs text-slate-500">Look for the painted number {slotNumber}, or ask the attendant at the gate.</p>
+              {lot && <a href={directionsUrl(lot.lat, lot.lng, 'driving')} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-sky-600 text-white text-xs font-bold"><Navigation className="w-3.5 h-3.5" /> Drive to the lot</a>}
+            </div>
+          )}
+
+          {/* Step 3: pay the fee */}
+          {sessionId && (
+            <div className="flex gap-3">
+              <span className="w-7 h-7 shrink-0 rounded-full bg-sky-100 text-sky-700 text-xs font-black flex items-center justify-center">₹</span>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-slate-900">{isPaid ? 'Fee paid' : `Pay the ${inr(lot?.feeInr ?? 14)} parking fee`}</p>
+                {isPaid ? (
+                  <p className="text-xs text-emerald-700 font-semibold mt-0.5 flex items-center gap-1"><Check className="w-3.5 h-3.5" /> All set. Tap "I've left the lot" when you drive out.</p>
+                ) : (
+                  <>
+                    <p className="text-xs text-slate-500 mt-0.5">Pay now or at the gate (demo UPI — nothing is charged).</p>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      {UPI_APPS.map((a) => <Btn key={a} tone="ghost" busy={busy === a} disabled={!!busy} onClick={() => pay(a)}>{a}</Btn>)}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+/** "Arriving without a booking?": nearest open lot with a free walk-in bay, then Maps + check-in. */
+function ParkNowCard({ activity, showToast, onExplore }) {
+  const [state, setState] = useState('idle'); // idle | locating | ready | error
+  const [pick, setPick] = useState(null);
+  const [from, setFrom] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [guide, setGuide] = useState(null);
+
+  const locate = () => new Promise((resolve) => {
+    if (!navigator.geolocation) return resolve(CITY_CENTRE);
+    navigator.geolocation.getCurrentPosition(
+      (p) => resolve({ lat: p.coords.latitude, lng: p.coords.longitude, label: 'your location' }),
+      () => resolve(CITY_CENTRE),
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 },
+    );
+  });
+
+  const findNearest = async () => {
+    setState('locating');
+    try {
+      const here = await locate();
+      setFrom(here);
+      const { lots } = await api('GET', `/lots?lat=${here.lat}&lng=${here.lng}`);
+      const walkInFree = (l) => (l.stats?.available ?? 0) - (l.stats?.reservableFree ?? 0);
+      const best = lots.filter((l) => l.stats?.open && walkInFree(l) > 0).sort((a, b) => a.distanceKm - b.distanceKm)[0];
+      if (!best) { setState('error'); setPick(null); return; }
+      setPick({ ...best, walkInFree: walkInFree(best) });
+      setState('ready');
+      api('GET', `/lots/${encodeURIComponent(best._id)}/forecast?lat=${here.lat}&lng=${here.lng}`).then((f) => setPick((x) => (x && x._id === best._id ? { ...x, forecast: f } : x))).catch(() => {});
+    } catch (e) { showToast(e.message); setState('idle'); }
+  };
+
+  const checkIn = async () => {
+    setBusy(true);
+    try {
+      const { session } = await api('POST', `/lots/${encodeURIComponent(pick._id)}/check-in`, {});
+      setGuide(session); // refresh Home only after the guide closes, or this card unmounts
+    } catch (e) { showToast(e.message); if (e.code === 'limit-reached') findNearest(); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <div className="p-6 rounded-3xl bg-white border border-sky-100 shadow-xs">
+      <div className="flex items-start gap-4">
+        <div className="w-11 h-11 shrink-0 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center"><LocateFixed className="w-5 h-5 text-sky-600" /></div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base font-bold text-slate-900">Arriving now, no booking?</h3>
+          <p className="mt-0.5 text-xs text-slate-500">We'll find the nearest open lot with a free walk-in bay and take you there.</p>
+
+          {state === 'idle' && (
+            <button type="button" onClick={findNearest} className="mt-3 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold shadow-sm">
+              <Navigation className="w-3.5 h-3.5" /> Find nearest parking
+            </button>
+          )}
+          {state === 'locating' && <p className="mt-3 text-xs font-semibold text-sky-700 animate-pulse">Finding the nearest free lot…</p>}
+          {state === 'error' && (
+            <div className="mt-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3">
+              No open lot near you has a free walk-in bay right now. <button type="button" onClick={onExplore} className="font-bold underline">See all lots</button> or <button type="button" onClick={findNearest} className="font-bold underline">try again</button>.
+            </div>
+          )}
+          {state === 'ready' && pick && (
+            <div className="mt-3 p-4 rounded-2xl bg-sky-50/70 border border-sky-100">
+              <p className="text-[10px] font-mono font-bold uppercase text-sky-700">Nearest from {from?.label}</p>
+              <p className="text-sm font-black text-slate-900 mt-0.5">{pick.name}</p>
+              <p className="text-xs text-slate-600">{pick.distanceKm} km · {pick.walkInFree} walk-in bay{pick.walkInFree === 1 ? '' : 's'} free · {inr(pick.feeInr)}</p>
+              {pick.forecast && (
+                <p className={`mt-1 text-[11px] font-semibold ${pick.forecast.verdict === 'likely' ? 'text-emerald-700' : 'text-amber-700'}`}>
+                  {pick.forecast.verdict === 'closing' ? `May close before you arrive (~${pick.forecast.etaMin} min away)`
+                    : `~${pick.forecast.predictedFree} free when you arrive in ~${pick.forecast.etaMin} min${pick.forecast.verdict === 'likely' ? '' : ' · filling up, consider reserving'}`}
+                </p>
+              )}
+              <div className="mt-3 flex flex-wrap gap-2">
+                <a href={directionsUrl(pick.lat, pick.lng, 'driving')} target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold shadow-sm">
+                  <Navigation className="w-3.5 h-3.5" /> Navigate in Google Maps
+                </a>
+                <button type="button" disabled={busy} onClick={checkIn}
+                  className="px-4 py-2 rounded-full bg-white border-2 border-sky-200 hover:border-sky-400 text-sky-800 text-xs font-bold disabled:opacity-50">
+                  {busy ? 'Checking in…' : "I'm here · get my slot"}
+                </button>
+                <button type="button" onClick={onExplore} className="px-3 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800">Other lots</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      {guide && <SlotGuide lotId={guide.lotId} slotNumber={guide.slotNumber} sessionId={guide._id} paid={!!guide.paymentId} showToast={showToast}
+        onClose={() => { setGuide(null); setState('idle'); activity.reload(); }} />}
+    </div>
+  );
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -531,7 +863,7 @@ function DriverHome({ activity, lotName, lots, showToast, onExplore, onFestival 
                 <h3 className="text-xl font-black">{lotName(current.lotId)}</h3>
                 <p className="text-xs text-sky-100 mt-0.5 font-medium">
                   Slot {current.slotNumber} · Flat Fee: {inr(current.feeInr)}
-                  {r ? ` · hold ends in ${duration(new Date(r.expiresAt) - Date.now())}` : ` · parked ${duration(Date.now() - new Date(s.startedAt))}`}
+                  {r ? <> · hold ends in <Countdown to={r.expiresAt} className="font-black text-white" /></> : ` · parked ${duration(Date.now() - new Date(s.startedAt))}`}
                 </p>
               </div>
               {lot && (
@@ -549,6 +881,8 @@ function DriverHome({ activity, lotName, lots, showToast, onExplore, onFestival 
             <div className="mt-4"><ActiveParkingActions activity={activity} showToast={showToast} /></div>
           </div>
         )}
+
+        {!current && activity.data && <ParkNowCard activity={activity} showToast={showToast} onExplore={onExplore} />}
 
         {fest.data?.active && fest.data.activeZoneCount > 0 && (
           <button type="button" onClick={onFestival} className="w-full text-left p-5 rounded-3xl bg-gradient-to-r from-amber-400 to-yellow-300 text-amber-950 shadow-md flex items-center gap-4">
@@ -618,6 +952,7 @@ function LotSlotViewer({ lotId, activity, showToast, onChanged, onOpenLot, onClo
   const [selectedSlot, setSelectedSlot] = React.useState(null);
   const [pending, setPending] = React.useState(null); // reservation awaiting payment
   const [confirmed, setConfirmed] = React.useState(false);
+  const [walkIn, setWalkIn] = React.useState(null); // session after "I'm here · check in"
   const [busy, setBusy] = React.useState(false);
   const [err, setErr] = React.useState(null);
   const alts = useLoad(() => api('GET', `/lots/${encodeURIComponent(lotId)}/alternatives`), [lotId]);
@@ -646,12 +981,14 @@ function LotSlotViewer({ lotId, activity, showToast, onChanged, onOpenLot, onClo
   const handlePay = (app) => run(async () => {
     await api('POST', `/reservations/${pending._id}/pay`, { upiApp: app });
     setConfirmed(true); setPending(null); onChanged();
-    showToast(`Slot ${pending.slotNumber} confirmed at ${lot.name} · 15-min lock active`);
+    showToast(`Slot ${pending.slotNumber} confirmed at ${lot.name} · 30-min lock active`);
   });
   const handleWalkIn = () => run(async () => {
     const { session } = await api('POST', `/lots/${encodeURIComponent(lotId)}/check-in`, {});
-    showToast(`Checked in at slot ${session.slotNumber}. Pay ${inr(session.feeInr)} from Reservations.`); onChanged(); onClose();
+    onChanged(); setWalkIn(session);
   });
+
+  if (walkIn) return <SlotGuide lotId={walkIn.lotId} slotNumber={walkIn.slotNumber} sessionId={walkIn._id} paid={!!walkIn.paymentId} showToast={showToast} onPaid={onChanged} onClose={onClose} />;
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" onClick={onClose}>
@@ -672,7 +1009,7 @@ function LotSlotViewer({ lotId, activity, showToast, onChanged, onOpenLot, onClo
                 {pctFull}% Full
               </span>}
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">{open ? `Tap a green "R" slot to reserve for 15 minutes (${inr(lot?.feeInr)})` : lot ? 'This lot is closed right now.' : ''}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{open ? `Tap a green "R" slot to reserve for 30 minutes (${inr(lot?.feeInr)})` : lot ? 'This lot is closed right now.' : ''}</p>
           </div>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => d.reload()} className="p-1.5 rounded-lg bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-800 transition-colors" title="Refresh">
@@ -746,11 +1083,24 @@ function LotSlotViewer({ lotId, activity, showToast, onChanged, onOpenLot, onClo
               <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />Free ({freeSlots})</span>
               <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-slate-400" />Occupied ({occupiedSlots})</span>
               <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-400" />Reserved ({reservedSlots})</span>
-              <span className="text-sky-700 font-bold">R = reservable (10%)</span>
+              <span className="text-sky-700 font-bold">{(() => { const r = slots.filter((x) => x.kind === 'reservable'); return r.length ? `R = reserved block ${r[0].number}–${r[r.length - 1].number} (10%, kept clear)` : 'R = reservable (10%)'; })()}</span>
             </div>
             <span className="text-[11px] font-mono text-sky-700 font-bold">Standard {inr(lot?.feeInr ?? 14)} municipal fee</span>
           </div>
 
+          {selectedSlot && (() => {
+            const sel = slots.find((x) => x._id === selectedSlot);
+            const sp = sel ? bayPosition(slots, sel.number) : null;
+            const sb = bayLatLng(lot, sp);
+            return sp && (
+              <div className="mb-3 p-3 rounded-xl bg-sky-50 border border-sky-200 flex flex-wrap items-center gap-3">
+                <span className="px-2.5 py-1.5 rounded-lg bg-sky-600 text-white text-sm font-black font-mono">{sel.number}</span>
+                <p className="flex-1 min-w-[140px] text-xs text-sky-900"><b>Row {rowName(sp.row)}</b> · {ordinal(sp.bay)} bay from the entrance</p>
+                <a href={directionsUrl(lot.lat, lot.lng, 'driving')} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-sky-600 text-white text-[11px] font-bold"><Car className="w-3 h-3" />Drive to lot</a>
+                <a href={directionsUrl(sb.lat, sb.lng, 'walking')} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white border border-sky-300 text-sky-800 text-[11px] font-bold"><MapPin className="w-3 h-3" />Walk to {sel.number}</a>
+              </div>
+            );
+          })()}
           <ErrorNote error={err} />
           {busyDriver && !pending && !confirmed && (
             <p className="mb-3 p-3 rounded-xl bg-sky-50 border border-sky-200 text-xs text-sky-800 font-semibold">You already have an active reservation or parked car. Finish it in Reservations first.</p>
@@ -760,7 +1110,7 @@ function LotSlotViewer({ lotId, activity, showToast, onChanged, onOpenLot, onClo
           {confirmed ? (
             <div className="w-full py-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center gap-2 text-emerald-800 text-sm font-bold">
               <Check className="w-4 h-4 text-emerald-600" />
-              Slot confirmed! 15-min lock active · {inr(lot?.feeInr)} (demo UPI)
+              Slot confirmed! 30-min lock active · {inr(lot?.feeInr)} (demo UPI)
             </div>
           ) : pending ? (
             <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 space-y-2">
@@ -1372,6 +1722,7 @@ function SlotActions({ slotId, lot, onClose, showToast }) {
           <Field label="Vehicle number (optional)"><input className={inputCls} value={veh} onChange={(e) => setVeh(e.target.value)} placeholder="CH01 AB 1234" /></Field>
           <Field label={`Fee ${inr(lot.feeInr)}`}><select className={inputCls} value={method} onChange={(e) => setMethod(e.target.value)}><option value="cash">Cash paid</option><option value="upi">UPI paid</option><option value="">Collect later</option></select></Field>
           {slot.kind === 'reservable' && <p className="text-[11px] text-slate-500">This is a reservation-pool slot. Use it for walk-ins only if the lot is otherwise full.</p>}
+          {slot.reportedAt && <p className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 font-semibold">⚠ Citizen report at {time(slot.reportedAt)}: {slot.reportNote || 'unregistered car in this bay'}. Record the car below, or free the bay if it has left.</p>}
           <Btn className="w-full" busy={busy} onClick={() => run(() => api('POST', `/attendant/lots/${encodeURIComponent(lot._id)}/entry`, { slotId, vehicleNo: veh || undefined, method: method || undefined, upiApp: method === 'upi' ? 'Google Pay' : undefined }), `${slot.number} occupied`)}>Register entry</Btn>
         </div>
       )}

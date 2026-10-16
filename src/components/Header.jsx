@@ -15,9 +15,7 @@ export default function Header({ onTabSelect, activeTab, onOpenAuth }) {
             }}
             className="flex items-center gap-2.5 group"
           >
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-600 to-sky-400 flex items-center justify-center shadow-xs text-white font-extrabold text-base tracking-tight group-hover:scale-105 transition-transform">
-              P
-            </div>
+            <img src="/brand/parkd-logo-192.png" alt="Park'd" width="40" height="40" className="w-10 h-10 rounded-xl shadow-xs ring-1 ring-slate-200/70 group-hover:scale-105 transition-transform" />
             <div>
               <div className="text-base font-extrabold tracking-tight text-slate-900 group-hover:text-sky-600 transition-colors">
                 Park'd

@@ -11,7 +11,7 @@ import { Listing, Lot, Payment, Reservation, Session, Slot, User } from "../mode
 import * as admin from "../services/admin.js";
 import { adminInsights, aiEnabled, askAssistant } from "../services/assistant.js";
 import * as parking from "../services/parking.js";
-import { lotsNear, resolvePlace } from "../services/search.js";
+import { distanceKm, lotsNear, resolvePlace } from "../services/search.js";
 import { allLotsWithStats, lotStats, publicLotsWithStats } from "../services/stats.js";
 import * as festival from "../services/festival.js";
 import * as nb from "../services/neighbourhood.js";
@@ -149,6 +149,15 @@ api.get("/lots", optionalAuth, handle(async (req, res) => {
   res.json({ lots });
 }));
 
+// GET /lots/:id/forecast?lat=&lng= (or ?etaMin=) → predicted free spaces when you arrive
+api.get("/lots/:id/forecast", handle(async (req, res) => {
+  const lat = num(req.query.lat), lng = num(req.query.lng);
+  const lot = await Lot.findById(req.params.id, { lat: 1, lng: 1 }).lean();
+  if (!lot) fail("not-found", "That parking lot does not exist.");
+  const dist = Number.isFinite(lat) && Number.isFinite(lng) ? distanceKm({ lat, lng }, lot) : null;
+  res.json(await parking.forecastLot(req.params.id, { distanceKm: dist, etaMin: num(req.query.etaMin) }));
+}));
+
 api.get("/lots/:id", handle(async (req, res) => {
   const lot = await Lot.findById(req.params.id).lean();
   if (!lot) fail("not-found", "That parking lot does not exist.");
@@ -211,6 +220,10 @@ api.post("/reservations/:id/cancel", requireAuth(), handle(async (req, res) => r
 api.post("/reservations/:id/check-in", requireAuth(), handle(async (req, res) => res.json({ session: await parking.checkInReservation(req.user, req.params.id) })));
 
 // Driver self check-in on a walk-in slot (demo; normally the attendant does it).
+// POST /me/report-slot-taken → the citizen's reserved/assigned bay already has a car in it
+// Limited per citizen (not per IP, so people on the same Wi-Fi don't share a limit).
+const reportLimiter = rateLimit({ windowMs: 15 * 60000, limit: 5, keyGenerator: (req) => `user:${req.user?._id}`, validate: false, standardHeaders: true, legacyHeaders: false, message: { code: "rate-limited", message: "Too many reports. Ask the attendant at the gate for help." } });
+api.post("/me/report-slot-taken", driver, reportLimiter, handle(async (req, res) => res.json(await parking.reportSlotTaken(req.user))));
 api.post("/lots/:id/check-in", driver, handle(async (req, res) => res.status(201).json({ session: await parking.driverCheckIn(req.user, { lotId: req.params.id, slotId: req.body?.slotId }) })));
 api.post("/sessions/:id/pay", driver, handle(async (req, res) => res.json({ payment: await parking.payParking(req.user, req.params.id, req.body?.upiApp) })));
 api.post("/sessions/:id/end", requireAuth(), handle(async (req, res) => res.json({ session: await parking.endSession(req.user, req.params.id) })));

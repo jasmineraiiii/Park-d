@@ -66,7 +66,7 @@ export default function SolutionSection({ onTabSelect, onOpenAuth }) {
             <div className="text-xs font-bold text-sky-600 uppercase tracking-wider mb-1">01 • For Commuters</div>
             <h3 className="text-xl font-bold text-slate-900 mb-2.5">Citizen App</h3>
             <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mb-4 font-normal">
-              Search by sector or landmark, view color-coded availability (green/amber/red), lock a guaranteed 15-minute reservation with UPI, and use Find My Car with walking directions.
+              Search by sector or landmark, view color-coded availability (green/amber/red), lock a guaranteed 30-minute reservation with UPI, and use Find My Car with walking directions.
             </p>
             <div className="flex flex-wrap gap-2 text-[11px] font-semibold text-slate-700">
               <span className="px-2.5 py-1 rounded-full bg-white border border-slate-200">10% Pre-Book Quota</span>

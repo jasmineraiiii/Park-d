@@ -122,7 +122,7 @@ and are handy as a backup or for testing.
 | Only 10% of a lot can be reserved | the seed marks the last 10% of slots `reservable`; only those can be booked |
 | No double booking | conditional updates ("set reserved only if still available") plus a per-lot lock in `services/locks.js` |
 | One booking / one parked car per driver | the driver is claimed first with a conditional update on `activeReservationId` / `activeSessionId` |
-| 15-minute hold | `jobs/index.js` releases expired holds every minute |
+| 30-minute hold | `jobs/index.js` releases expired holds every minute |
 | Can't leave without paying | `endSession` and `attendantExit` refuse unpaid sessions |
 | Attendants only touch their lots; only the MC changes fees | `requireLotAccess`, `requireAuth("admin")` |
 | Everything is logged | `audit()` writes to `auditlogs` on every change |
@@ -152,7 +152,7 @@ public/                  the basic web UI (plain HTML/CSS/JS, served by the serv
 
 ```
 src/server.js            starts Express + Socket.io, connects MongoDB, starts jobs
-src/config.js            business rules (₹14, 10%, 15 min) and environment settings
+src/config.js            business rules (₹14, 10%, 30 min) and environment settings
 src/models/index.js      all collections (lots + zones, slots, bookings, listings, notifications, …)
 src/routes/index.js      every endpoint
 src/services/parking.js  all booking, parking, attendant and admin rules

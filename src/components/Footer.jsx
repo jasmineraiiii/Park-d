@@ -7,9 +7,7 @@ export default function Footer({ onTabSelect }) {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-600 to-sky-400 flex items-center justify-center font-bold text-white shadow-xs">
-            P
-          </div>
+          <img src="/brand/parkd-logo-192.png" alt="Park'd" width="40" height="40" className="w-10 h-10 rounded-xl shadow-xs ring-1 ring-slate-200/70" />
           <div>
             <div className="text-slate-900 font-bold text-sm tracking-tight">Park'd</div>
             <div className="text-[11px] text-slate-500">Smart Parking for Chandigarh · Municipal Corporation Pilot</div>

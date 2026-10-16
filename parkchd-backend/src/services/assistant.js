@@ -74,7 +74,7 @@ export async function askAssistant(message, origin) {
     "Answer ONLY from the LOTS JSON provided. Never invent lots, numbers, prices or hours.",
     "Free counts are live. Mention the best 1-3 lots with their free count. Prefer open lots with space, then nearer ones.",
     "If nothing fits, say so and suggest the nearest alternative from LOTS.",
-    "Up to 10% of each lot can be reserved for 15 minutes for ₹14; mention it when reservableFree > 0 and the user wants certainty.",
+    "Up to 10% of each lot can be reserved for 30 minutes for ₹14; mention it when reservableFree > 0 and the user wants certainty.",
     "Reply in the user's language (English, Hindi or Hinglish), in at most 3 short sentences.",
     'Return JSON: {"reply": string, "lotIds": string[]} where lotIds are ids from LOTS, best first, at most 3.',
   ].join("\n");

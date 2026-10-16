@@ -281,7 +281,7 @@ export default function FindSlotSection({ onTabSelect, onOpenAuth }) {
                 <div>
                   <h4 className="text-xs font-bold text-slate-900">10% Pre-Booking Hold</h4>
                   <p className="text-[11px] text-slate-600 mt-0.5">
-                    Guaranteed 15-minute hold for ₹14 via UPI (Google Pay, PhonePe, Paytm). 90% stays preserved for walk-ins.
+                    Guaranteed 30-minute hold for ₹14 via UPI (Google Pay, PhonePe, Paytm). 90% stays preserved for walk-ins.
                   </p>
                 </div>
               </div>
@@ -626,7 +626,7 @@ export default function FindSlotSection({ onTabSelect, onOpenAuth }) {
                 </div>
 
                 <div className="p-3 rounded-xl bg-sky-50 text-xs text-sky-900 font-medium">
-                  <strong>15-Minute Reservation:</strong> Holds 1 guaranteed slot for ₹14 via UPI. {selectedLot.reservable} pre-book slots remaining right now.
+                  <strong>30-Minute Reservation:</strong> Holds 1 guaranteed slot for ₹14 via UPI. {selectedLot.reservable} pre-book slots remaining right now.
                 </div>
 
                 <div className="flex items-center gap-3 pt-2">

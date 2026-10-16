@@ -1,0 +1,12 @@
+{
+  "name": "Park'd — Smart parking for Chandigarh",
+  "short_name": "Park'd",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f7ec",
+  "theme_color": "#0284c7",
+  "icons": [
+    { "src": "/brand/parkd-logo-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/brand/parkd-logo-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

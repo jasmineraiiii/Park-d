@@ -20,7 +20,7 @@ export function startJobs() {
     try { await runNeighbourhoodJobs(); } catch (e) { console.error("[jobs] neighbourhood jobs failed", e.message); }
   });
 
-  // Release reservation holds after 15 minutes. Runs every minute.
+  // Release reservation holds after 30 minutes. Runs every minute.
   cron.schedule("* * * * *", async () => {
     try {
       const n = await expireReservations();

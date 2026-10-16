@@ -5,7 +5,7 @@ export const RULES = {
   defaultFeeInr: 14,
   reservationFeeInr: 14,
   reservableShare: 0.1, // only 10% of a lot can be reserved
-  holdMinutes: 15,
+  holdMinutes: 30,
   highOccupancyPct: 85, // admin alert threshold
   timeZone: "Asia/Kolkata", // opening hours and charts use Chandigarh time
 };

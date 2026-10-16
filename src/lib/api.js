@@ -58,6 +58,30 @@ export async function signIn({ role, isSignUp, fullName, email, password, staffI
   return s;
 }
 
+/**
+ * One login for everyone. An email signs in a citizen (password); anything else
+ * is a staff ID tried as a worker, then as MC staff (PIN). The account decides
+ * which dashboard opens.
+ */
+export async function logIn({ identifier, password }) {
+  const id = String(identifier || '').trim();
+  let r, role;
+  if (id.includes('@')) {
+    r = await api('POST', '/auth/login', { email: id, password }, null); role = 'driver';
+  } else {
+    try { r = await api('POST', '/auth/attendant', { username: id, pin: password }, null); role = 'worker'; }
+    catch (e) {
+      if (e.status !== 401) throw e;
+      try { r = await api('POST', '/auth/admin', { username: id, pin: password }, null); role = 'developer'; }
+      catch (e2) { if (e2.status === 401) e2.message = "That staff ID and PIN don't match."; throw e2; }
+    }
+  }
+  const s = { token: r.token, user: r.user, role };
+  session.set(s);
+  resetSocket();
+  return s;
+}
+
 export async function signInWithGoogle(credential) {
   const r = await api('POST', '/auth/google', { credential }, null);
   const s = { token: r.token, user: r.user, role: 'driver' };

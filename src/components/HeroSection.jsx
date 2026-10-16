@@ -67,7 +67,7 @@ export default function HeroSection({ onTabSelect, onOpenAuth }) {
           </div>
 
           <div className="col-span-2 sm:col-span-1 animate-fade-in-scale delay-600 p-3.5 sm:p-4 rounded-2xl bg-white/90 border border-sky-100 shadow-sm backdrop-blur-md text-center">
-            <div className="text-2xl sm:text-3xl font-extrabold text-sky-600">15 min</div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-sky-600">30 min</div>
             <div className="text-xs text-slate-600 font-semibold mt-0.5">Guaranteed Lock</div>
           </div>
         </div>

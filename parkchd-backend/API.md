@@ -15,7 +15,7 @@ Base URL: `http://localhost:4000/api` locally, or `https://<your-app>.onrender.c
 | `permission-denied` | 403 | wrong role (e.g. a worker token on an MC endpoint), or a lot not assigned to this worker |
 | `not-found` | 404 | no such lot, slot, booking or receipt |
 | `invalid-state`, `already-active`, `limit-reached`, `slot-taken` | 409 | the rules said no (e.g. slot just taken, already booked) |
-| `expired` | 410 | the 15-minute hold ran out |
+| `expired` | 410 | the 30-minute hold ran out |
 | `lot-closed` | 422 | outside opening hours, or a temporary zone that isn't active |
 | `rate-limited` | 429 | too many requests |
 
@@ -100,7 +100,9 @@ Web app accounts (2.0):
 | Method | Path | Body | Returns |
 | --- | --- | --- | --- |
 | GET | `/me/activity` | | `{ activeSession, activeReservation, sessions[], reservations[], payments[] }` — use for Home banner, My Car, Reservations, Profile |
-| POST | `/reservations` | `{ lotId, slotId? }` | 201 `{ reservation }` (status `pending-payment`, 15-min hold starts) |
+| POST | `/reservations` | `{ lotId, slotId? }` | 201 `{ reservation }` (status `pending-payment`, 30-min hold starts) |
+| POST | `/me/report-slot-taken` | — | `{ moved, slotNumber, oldSlotNumber, lotName, refundDue, alertedStaff }` — the citizen's walk-in bay already has a car in it (reserved bays sit in their own block and are kept clear, so they can't be reported). The bay is marked occupied, the citizen is moved to the next free walk-in bay (or released if the lot is full, with the nearest lot suggested in the app), and the lot's attendants get an alert. Max 5 reports per 15 min. |
+| GET | `/lots/:id/forecast?lat=&lng=` (or `?etaMin=`) | — | `{ etaMin, availableNow, predictedFree, netPerHour, verdict: likely \| tight \| unlikely \| closing }` — estimated free spaces on arrival, from the last hour of arrivals, departures and holds. |
 | GET | `/reservations/:id` | | `{ reservation }` |
 | POST | `/reservations/:id/pay` | `{ upiApp: "Google Pay" \| "PhonePe" \| "Paytm" \| "BHIM" }` | `{ reservation, payment }` |
 | POST | `/reservations/:id/check-in` | | `{ session }` (car is now in My Car) |
